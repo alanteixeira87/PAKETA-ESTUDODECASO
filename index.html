@@ -23,7 +23,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Inter', -apple-system, sans-serif; color: var(--text-main); background-color: #FFFFFF; overflow-x: hidden; line-height: 1.6; }
 
-        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; border-radius: 100px; font-weight: 700; font-size: 15px; text-decoration: none; cursor: pointer; transition: all 0.3s ease; border: none; outline: none; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; border-radius: 100px; font-weight: 700; font-size: 15px; text-decoration: none; cursor: pointer; transition: all 0.3s ease; border: none; outline: none; text-align: center; }
         .btn:active { transform: scale(0.96); }
         .btn-primary { background: var(--primary); color: white; box-shadow: 0 8px 20px rgba(0, 112, 224, 0.25); }
         .btn-primary:hover { background: var(--primary-dark); }
@@ -31,10 +31,15 @@
         .btn-outline:hover { background: var(--bg-main); }
         .btn-white { background: white; color: var(--primary); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
 
+        /* Navbar e Menu Hamburger */
         #navbar { position: fixed; top: 0; left: 0; width: 100%; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); display: flex; justify-content: space-between; align-items: center; padding: 16px 5%; border-bottom: 1px solid var(--border); z-index: 1000; }
-        .logo-container { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 20px; color: var(--primary); }
+        .logo-container { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 20px; color: var(--primary); z-index: 1001; }
         .logo-icon { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
-        .nav-links { display: flex; gap: 32px; }
+        
+        .menu-toggle { display: none; cursor: pointer; color: var(--primary); z-index: 1001; padding: 4px; }
+        .nav-menu { display: flex; align-items: center; gap: 32px; flex-grow: 1; justify-content: flex-end; }
+        .nav-links { display: flex; gap: 32px; margin-right: 32px; }
+        .nav-buttons { display: flex; gap: 16px; }
         .nav-link { color: var(--text-sub); text-decoration: none; font-weight: 600; font-size: 15px; transition: color 0.2s; }
         .nav-link:hover { color: var(--primary); }
 
@@ -112,8 +117,8 @@
         .social-link:hover { background: var(--primary); }
         .footer-bottom { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; color: #94A3B8; font-size: 14px; }
 
+        /* Media Queries - Responsividade */
         @media (max-width: 992px) {
-            .nav-links { display: none; }
             .hero-container { flex-direction: column; text-align: center; }
             .hero-content h1 { font-size: 2.8rem; }
             .hero-actions { justify-content: center; }
@@ -121,14 +126,39 @@
             .sim-container { flex-direction: column; }
             .features-grid { grid-template-columns: repeat(2, 1fr); }
             .footer-grid { grid-template-columns: repeat(2, 1fr); }
+            
+            /* Ajustes do Menu Hamburger */
+            .menu-toggle { display: block; }
+            .nav-menu {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(10px);
+                flex-direction: column;
+                padding: 32px 20px;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+                display: none; /* Escondido por padrão */
+                gap: 24px;
+                border-bottom: 1px solid var(--border);
+            }
+            .nav-menu.active {
+                display: flex;
+                animation: slideDown 0.3s ease forwards;
+            }
+            .nav-links { flex-direction: column; align-items: center; width: 100%; margin-right: 0; gap: 24px; }
+            .nav-link { font-size: 18px; }
+            .nav-buttons { flex-direction: column; width: 100%; gap: 16px; }
+            .nav-buttons .btn { width: 100%; }
         }
 
         @media (max-width: 768px) {
-            #navbar { padding: 12px 20px; }
-            #navbar .btn-outline { display: none; }
+            #navbar { padding: 16px 20px; }
             .hero { padding: 100px 20px 40px 20px; }
             .hero-content h1 { font-size: 2.2rem; margin-bottom: 16px; }
             .hero-content p { font-size: 1rem; margin-bottom: 32px; }
+            .hero-actions { flex-direction: column; }
             .mockup-frame { width: 100%; max-width: 320px; height: 580px; border-width: 8px; }
             .simulator { padding: 60px 20px; }
             .sim-content h2 { font-size: 2rem; }
@@ -150,7 +180,9 @@
         .animate-up { opacity: 0; transform: translateY(20px); animation: fadeInUp 0.6s ease forwards; }
         .delay-1 { animation-delay: 0.2s; }
         .delay-2 { animation-delay: 0.4s; }
+        
         @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -162,16 +194,22 @@
             Paketá
         </div>
 
-        <div class="nav-links">
-            <a href="#simulator" class="nav-link">Simular</a>
-            <a href="#vantagens" class="nav-link">Vantagens</a>
-            <a href="#" class="nav-link">Transparência</a>
-            <a href="#" class="nav-link">Ajuda</a>
+        <div class="menu-toggle" id="mobile-menu-btn">
+            <i data-lucide="menu" size="28"></i>
         </div>
 
-        <div style="display: flex; gap: 16px;">
-            <a href="app.html?flow=login" class="btn btn-outline" style="border: none;">Entrar</a>
-            <a href="app.html?flow=novo" class="btn btn-primary">Abrir conta grátis</a>
+        <div class="nav-menu" id="nav-menu">
+            <div class="nav-links">
+                <a href="#simulator" class="nav-link" onclick="closeMobileMenu()">Simular</a>
+                <a href="#vantagens" class="nav-link" onclick="closeMobileMenu()">Vantagens</a>
+                <a href="#" class="nav-link" onclick="closeMobileMenu()">Transparência</a>
+                <a href="#" class="nav-link" onclick="closeMobileMenu()">Ajuda</a>
+            </div>
+
+            <div class="nav-buttons">
+                <a href="./app.html?flow=login" class="btn btn-outline" style="border: none;">Entrar</a>
+                <a href="./app.html?flow=novo" class="btn btn-primary">Faça uma simulação</a>
+            </div>
         </div>
     </nav>
 
@@ -182,8 +220,8 @@
                 <p>Taxas personalizadas, aprovação em segundos e um app desenhado para facilitar a sua vida. Sem asteriscos, sem pegadinhas.</p>
 
                 <div class="hero-actions delay-1 animate-up">
-                    <a href="app.html?flow=novo" class="btn btn-primary" style="padding: 20px 40px; font-size: 16px;">
-                        Quero ser cliente <i data-lucide="arrow-right" size="18"></i>
+                    <a href="./app.html?flow=novo" class="btn btn-primary" style="padding: 20px 40px; font-size: 16px;">
+                        Fazer minha simulação <i data-lucide="arrow-right" size="18"></i>
                     </a>
                 </div>
 
@@ -290,8 +328,8 @@
                     <div class="sim-result-note">Taxa de juros calculada: 1,99% a.m. (CET 2,15% a.m.)*</div>
                 </div>
 
-                <a href="app.html?flow=novo" class="btn btn-primary" style="width: 100%; padding: 22px; font-size: 18px; border-radius: 16px;">
-                    Solicitar este empréstimo agora
+                <a href="./app.html?flow=novo" class="btn btn-primary" style="width: 100%; padding: 22px; font-size: 18px; border-radius: 16px;">
+                    Solicitar esta simulação
                 </a>
             </div>
         </div>
@@ -329,10 +367,10 @@
             <h2>Pronto para assumir o controle?</h2>
             <p style="font-size: 20px; opacity: 0.9; margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto; position: relative; z-index: 2;">Esqueça bancos demorados. Acesse seu crédito em minutos, do sofá de casa.</p>
             
-            <a href="app.html?flow=novo" class="btn-white">Abrir Conta Digital</a>
+            <a href="./app.html?flow=novo" class="btn-white">Simular Crédito Agora</a>
             
             <div style="margin-top: 32px; font-weight: 600; opacity: 0.9;">
-                <i data-lucide="check" size="18" style="display:inline-block; vertical-align: bottom;"></i> 100% Gratuito, sem anuidade
+                <i data-lucide="check" size="18" style="display:inline-block; vertical-align: bottom;"></i> 100% Gratuito, sem compromisso
             </div>
         </div>
     </section>
@@ -394,6 +432,27 @@
     <script>
         /* ================= JAVASCRIPT DA LANDING PAGE EMBUTIDO ================= */
         lucide.createIcons();
+
+        // Lógica do Menu Hamburger (Mobile)
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const navMenu = document.getElementById('nav-menu');
+
+        mobileBtn.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            const isOpen = navMenu.classList.contains('active');
+            // Troca o ícone de hamburger para 'X' quando aberto
+            mobileBtn.innerHTML = isOpen ? `<i data-lucide="x" size="28"></i>` : `<i data-lucide="menu" size="28"></i>`;
+            lucide.createIcons();
+        });
+
+        // Função para fechar o menu ao clicar num link
+        function closeMobileMenu() {
+            if (window.innerWidth <= 992) {
+                navMenu.classList.remove('active');
+                mobileBtn.innerHTML = `<i data-lucide="menu" size="28"></i>`;
+                lucide.createIcons();
+            }
+        }
 
         const navbar = document.getElementById('navbar');
         window.addEventListener('scroll', () => {
