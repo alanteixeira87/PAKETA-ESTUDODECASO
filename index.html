@@ -177,7 +177,9 @@
         <div class="hero-section">
             <header class="hero-header-top">
                 <div style="display: flex; align-items: center; gap: 12px;">
-                    <div style="width: 48px; height: 48px; background: rgba(255,255,255,0.2); border-radius: 16px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px);"><svg width="24" height="24" fill="#FFFFFF"><use href="#paketa-logo"></use></svg></div>
+                    <div style="width: 48px; height: 48px; background: rgba(255,255,255,0.2); border-radius: 16px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); cursor: pointer; transition: transform 0.2s;" onclick="window.location.href='landing.html'" onmousedown="this.style.transform='scale(0.95)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
+                        <svg width="24" height="24" fill="#FFFFFF"><use href="#paketa-logo"></use></svg>
+                    </div>
                     <div><h3 style="font-size: 15px; font-weight: 500; opacity: 0.9;">Olá,</h3><h3 style="font-size: 20px; font-weight: 800; line-height: 1.1;"><span id="userNameRender">Cliente</span></h3></div>
                 </div>
                 <div style="display: flex; gap: 12px;">
