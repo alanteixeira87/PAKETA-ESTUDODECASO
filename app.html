@@ -8,7 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* ================= CSS DO WEBAPP EMBUTIDO ================= */
         :root {
             --primary: #0070E0; 
             --primary-light: #338DE6; 
@@ -53,7 +52,7 @@
 
         @keyframes anty-fade-slide { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        .card { background: var(--white); border-radius: var(--radius-card); padding: 24px; box-shadow: var(--shadow-sm); margin-bottom: 24px; border: 1px solid rgba(255, 255, 255, 1); width: 100%; }
+        .card { background: var(--white); border-radius: var(--radius-card); padding: 24px; box-shadow: var(--shadow-sm); margin-bottom: 24px; border: 1px solid rgba(255, 255, 255, 1); display: block; }
 
         input[type="text"], input[type="password"], input[type="tel"], input[type="email"], input[type="number"] { width: 100%; padding: 18px 20px; border-radius: var(--radius-btn); border: 1px solid var(--border); background: #F8FAFC; font-size: 16px; outline: none; margin-bottom: 16px; -webkit-appearance: none; appearance: none;}
         input:focus { background: var(--white); border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0, 112, 224, 0.1); }
@@ -119,23 +118,10 @@
         .chat-option-btn { background: white; border: 1px solid var(--primary); color: var(--primary); padding: 10px 16px; border-radius: 100px; font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; transition: all 0.2s; }
         .chat-option-btn:active { background: var(--primary-light); color: white; }
 
-        /* =======================================================================
-           RESPONSIVIDADE INTELIGENTE (Simulador de Mobile em Telas Grandes) 
-           ======================================================================= */
         @media (min-width: 481px) {
-            body {
-                background-color: #CBD5E1; /* Fundo do navegador no desktop */
-            }
-            [anty-view] {
-                box-shadow: 0 0 40px rgba(0,0,0,0.15); /* Cria a ilusão de um celular */
-                background-color: var(--bg);
-            }
-            /* Trava todos os elementos fixos na largura exata do "celular virtual" */
-            .bottom-nav, .chat-modal, .bottom-sheet, .selection-bar, .overlay, .chat-overlay {
-                max-width: 480px;
-                left: 50%;
-                margin-left: -240px; /* Mantém centralizado de forma robusta */
-            }
+            body { background-color: #CBD5E1; }
+            [anty-view] { box-shadow: 0 0 40px rgba(0,0,0,0.15); background-color: var(--bg); }
+            .bottom-nav, .chat-modal, .bottom-sheet, .selection-bar, .overlay, .chat-overlay { max-width: 480px; left: 50%; margin-left: -240px; }
         }
     </style>
 </head>
@@ -156,7 +142,6 @@
     </nav>
 
     <div anty-view="splash" class="active" style="justify-content: center; align-items: center; text-align: center;">
-        
         <div style="position: absolute; top: 24px; left: 24px; cursor: pointer; color: var(--text-sub); display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; transition: color 0.2s;" onclick="window.location.href='index.html'" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-sub)'">
             <i data-lucide="arrow-left" size="20"></i> Voltar
         </div>
@@ -364,6 +349,31 @@
         </div>
     </div> 
 
+    <div anty-view="education" style="background: var(--bg);">
+        <header class="header-top" style="justify-content: flex-start; gap: 16px; padding: 24px 20px 0; margin-bottom: 24px;">
+            <div class="icon-btn" onclick="anty.goto('home');"><i data-lucide="arrow-left"></i></div>
+            <h2 style="font-size: 20px; font-weight: 700;">Educação Financeira</h2>
+        </header>
+
+        <div style="padding: 0 20px;">
+            <p style="color: var(--text-sub); font-size: 15px; margin-bottom: 24px;">Tire suas dúvidas e aprenda a usar seu crédito de forma inteligente e saudável.</p>
+
+            <div class="faq-card" onclick="app.toggleFaq(this)">
+                <div class="faq-header">
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <div style="background: #E6F3FF; color: var(--primary); padding: 8px; border-radius: 10px; flex-shrink: 0;"><i data-lucide="piggy-bank" size="20"></i></div>
+                        <h4 style="font-size: 15px; font-weight: 700; margin: 0; color: var(--text-main);">Como funciona o Consignado?</h4>
+                    </div>
+                    <i data-lucide="chevron-down" class="faq-chevron"></i>
+                </div>
+                <div class="faq-body">
+                    <div style="height: 1px; background: var(--border); margin: 16px 0;"></div>
+                    <p style="font-size: 14px; color: var(--text-sub); line-height: 1.5; margin: 0;">O valor da parcela é descontado diretamente da sua folha de pagamento todos os meses. Como o risco de atraso é quase zero, oferecemos as <strong>menores taxas de juros</strong> do mercado.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div anty-view="loans-hub" style="background: var(--bg);">
         <header style="margin-bottom: 24px; padding-top: 24px; padding-left: 20px; padding-right: 20px;"><div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;"><div class="icon-btn" onclick="anty.goto('home')"><i data-lucide="arrow-left" color="var(--text-main)"></i></div><h2 style="font-size: 28px; font-weight: 800; color: var(--text-main);">Contratos</h2></div></header>
         <div style="padding: 0 20px;">
@@ -399,41 +409,43 @@
     <div anty-view="new">
         <header class="header-top" style="justify-content: flex-start; gap: 16px; padding: 24px 20px 0;"><div class="icon-btn" onclick="anty.goto('home')"><i data-lucide="arrow-left"></i></div><h2 style="font-size: 20px; font-weight: 700;">Simulador Consignado</h2></header>
         
-        <div class="card" style="text-align: center; padding: 40px 24px; margin: 20px;">
-            <p style="color: var(--text-sub); font-size: 15px; margin-bottom: 8px;">Seu limite disponível para contratação</p>
-            <h2 id="availableLimit" style="color: var(--success); font-size: 36px; font-weight: 700; margin-bottom: 32px;">R$ 5.250,00</h2>
-            
-            <div style="text-align: left;">
-                <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px;">Qual valor você precisa?</label>
-                <input type="number" id="loanAmount" placeholder="Ex: 1000">
-
-                <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 12px; margin-top: 16px;">Em quantas vezes?</label>
+        <div style="padding: 0 20px;">
+            <div class="card" style="text-align: center; padding: 40px 24px; margin-bottom: 0;">
+                <p style="color: var(--text-sub); font-size: 15px; margin-bottom: 8px;">Seu limite disponível para contratação</p>
+                <h2 id="availableLimit" style="color: var(--success); font-size: 36px; font-weight: 700; margin-bottom: 32px;">R$ 5.250,00</h2>
                 
-                <div class="installments-selector">
-                    <div class="inst-pill" onclick="app.selectInstallment(6, this)">6x</div>
-                    <div class="inst-pill active" onclick="app.selectInstallment(12, this)">12x</div>
-                    <div class="inst-pill" onclick="app.selectInstallment(24, this)">24x</div>
-                    <div class="inst-pill" onclick="app.selectInstallment(36, this)">36x</div>
-                    <div class="inst-pill" onclick="app.selectInstallment(48, this)">48x</div>
-                </div>
-                <input type="hidden" id="loanMonths" value="12">
-            </div>
+                <div style="text-align: left;">
+                    <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px;">Qual valor você precisa?</label>
+                    <input type="number" id="loanAmount" placeholder="Ex: 1000">
 
-            <button id="btnSimulate" class="btn btn-primary" onclick="app.simulateLoan()">Simular Parcelas</button>
-            
-            <div id="simulationResult" style="display: none; margin-top: 24px; text-align: left; padding-top: 24px; border-top: 1px dashed var(--border);">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
-                    <div>
-                        <p style="font-size: 13px; font-weight: 600; text-transform: uppercase;">Oferta Selecionada</p>
-                        <b style="font-size: 22px; color: var(--primary);"><span id="simulatedMonthsLabel">12x</span> de <span id="simulatedInstallment">R$ 0,00</span></b>
+                    <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 12px; margin-top: 16px;">Em quantas vezes?</label>
+                    
+                    <div class="installments-selector">
+                        <div class="inst-pill" onclick="app.selectInstallment(6, this)">6x</div>
+                        <div class="inst-pill active" onclick="app.selectInstallment(12, this)">12x</div>
+                        <div class="inst-pill" onclick="app.selectInstallment(24, this)">24x</div>
+                        <div class="inst-pill" onclick="app.selectInstallment(36, this)">36x</div>
+                        <div class="inst-pill" onclick="app.selectInstallment(48, this)">48x</div>
                     </div>
+                    <input type="hidden" id="loanMonths" value="12">
                 </div>
-                <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 24px;">
-                    <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 12px;"><span style="color: var(--text-sub);">Valor solicitado</span><b id="simulatedPrincipal">R$ 0,00</b></div>
-                    <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 12px;"><span style="color: var(--text-sub);">Taxa de juros</span><b>1,89% a.m.</b></div>
-                    <div style="display: flex; justify-content: space-between; font-size: 15px;"><span style="font-weight: 600;">Total a pagar</span><b id="simulatedTotal">R$ 0,00</b></div>
+
+                <button id="btnSimulate" class="btn btn-primary" onclick="app.simulateLoan()">Simular Parcelas</button>
+                
+                <div id="simulationResult" style="display: none; margin-top: 24px; text-align: left; padding-top: 24px; border-top: 1px dashed var(--border);">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                        <div>
+                            <p style="font-size: 13px; font-weight: 600; text-transform: uppercase;">Oferta Selecionada</p>
+                            <b style="font-size: 22px; color: var(--primary);"><span id="simulatedMonthsLabel">12x</span> de <span id="simulatedInstallment">R$ 0,00</span></b>
+                        </div>
+                    </div>
+                    <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 24px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 12px;"><span style="color: var(--text-sub);">Valor solicitado</span><b id="simulatedPrincipal">R$ 0,00</b></div>
+                        <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 12px;"><span style="color: var(--text-sub);">Taxa de juros</span><b>1,89% a.m.</b></div>
+                        <div style="display: flex; justify-content: space-between; font-size: 15px;"><span style="font-weight: 600;">Total a pagar</span><b id="simulatedTotal">R$ 0,00</b></div>
+                    </div>
+                    <button id="btnContract" class="btn btn-primary" onclick="app.contractLoan()" style="background: var(--success); width: 100%;">Confirmar Contratação</button>
                 </div>
-                <button id="btnContract" class="btn btn-primary" onclick="app.contractLoan()" style="background: var(--success); width: 100%;">Confirmar Contratação</button>
             </div>
         </div>
     </div>
@@ -441,26 +453,28 @@
     <div anty-view="fgts-simulador">
         <header class="header-top" style="justify-content: flex-start; gap: 16px; padding: 24px 20px 0;"><div class="icon-btn" onclick="anty.goto('home')"><i data-lucide="arrow-left"></i></div><h2 style="font-size: 20px; font-weight: 800;">Antecipação FGTS</h2></header>
         
-        <div class="card" style="text-align: center; padding: 40px 24px; margin: 24px;">
-            <div style="width: 64px; height: 64px; background: var(--success-light); border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 24px;"><i data-lucide="landmark" color="var(--success)" size="32"></i></div>
-            
-            <p style="color: var(--text-sub); font-size: 15px; margin-bottom: 8px;">Saldo disponível retido na Caixa</p>
-            <h2 id="fgtsBalanceRender" style="color: var(--text-main); font-size: 36px; font-weight: 800; margin-bottom: 32px; letter-spacing: -1px;">R$ 3.450,00</h2>
-            
-            <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 16px; padding: 20px; text-align: left; margin-bottom: 32px;">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;"><i data-lucide="check" color="var(--success)" size="18"></i> <span style="font-size: 14px; font-weight: 600;">Sem parcelas mensais</span></div>
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;"><i data-lucide="check" color="var(--success)" size="18"></i> <span style="font-size: 14px; font-weight: 600;">Não compromete sua renda</span></div>
-                <div style="display: flex; align-items: center; gap: 12px;"><i data-lucide="check" color="var(--success)" size="18"></i> <span style="font-size: 14px; font-weight: 600;">Dinheiro na conta via PIX</span></div>
-            </div>
-
-            <button id="btnSimulateFGTS" class="btn btn-primary" style="background: var(--success); box-shadow: 0 8px 24px -6px rgba(0, 200, 83, 0.4);" onclick="app.simulateFGTS()">Simular Liberação</button>
-            
-            <div id="fgtsSimulationResult" style="display: none; text-align: left; padding-top: 24px; border-top: 1px dashed var(--border);">
-                <div style="background: var(--success-light); border: 1px solid rgba(0,200,83,0.3); border-radius: 16px; padding: 20px; margin-bottom: 24px;">
-                    <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 12px;"><span style="color: #065F46;">Valor liberado hoje</span><b id="simulatedFGTSTotal" style="font-size: 20px; color: #065F46;">R$ 0,00</b></div>
-                    <div style="display: flex; justify-content: space-between; font-size: 13px;"><span style="color: #065F46;">Como vou pagar?</span><b id="simulatedFGTSDiscount" style="color: #065F46;">--</b></div>
+        <div style="padding: 0 20px;">
+            <div class="card" style="text-align: center; padding: 40px 24px; margin-bottom: 0;">
+                <div style="width: 64px; height: 64px; background: var(--success-light); border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 24px;"><i data-lucide="landmark" color="var(--success)" size="32"></i></div>
+                
+                <p style="color: var(--text-sub); font-size: 15px; margin-bottom: 8px;">Saldo disponível retido na Caixa</p>
+                <h2 id="fgtsBalanceRender" style="color: var(--text-main); font-size: 36px; font-weight: 800; margin-bottom: 32px; letter-spacing: -1px;">R$ 3.450,00</h2>
+                
+                <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 16px; padding: 20px; text-align: left; margin-bottom: 32px;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;"><i data-lucide="check" color="var(--success)" size="18"></i> <span style="font-size: 14px; font-weight: 600;">Sem parcelas mensais</span></div>
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;"><i data-lucide="check" color="var(--success)" size="18"></i> <span style="font-size: 14px; font-weight: 600;">Não compromete sua renda</span></div>
+                    <div style="display: flex; align-items: center; gap: 12px;"><i data-lucide="check" color="var(--success)" size="18"></i> <span style="font-size: 14px; font-weight: 600;">Dinheiro na conta via PIX</span></div>
                 </div>
-                <button class="btn btn-primary" onclick="app.contractLoan()" style="background: var(--text-main);">Contratar e Liberar PIX</button>
+
+                <button id="btnSimulateFGTS" class="btn btn-primary" style="background: var(--success); box-shadow: 0 8px 24px -6px rgba(0, 200, 83, 0.4);" onclick="app.simulateFGTS()">Simular Liberação</button>
+                
+                <div id="fgtsSimulationResult" style="display: none; text-align: left; padding-top: 24px; border-top: 1px dashed var(--border);">
+                    <div style="background: var(--success-light); border: 1px solid rgba(0,200,83,0.3); border-radius: 16px; padding: 20px; margin-bottom: 24px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 12px;"><span style="color: #065F46;">Valor liberado hoje</span><b id="simulatedFGTSTotal" style="font-size: 20px; color: #065F46;">R$ 0,00</b></div>
+                        <div style="display: flex; justify-content: space-between; font-size: 13px;"><span style="color: #065F46;">Como vou pagar?</span><b id="simulatedFGTSDiscount" style="color: #065F46;">--</b></div>
+                    </div>
+                    <button class="btn btn-primary" onclick="app.contractLoan()" style="background: var(--text-main);">Contratar e Liberar PIX</button>
+                </div>
             </div>
         </div>
     </div>
@@ -543,6 +557,7 @@
     </div>
 
     <script>
+        /* ================= JAVASCRIPT DO WEBAPP EMBUTIDO ================= */
         lucide.createIcons();
 
         const utils = { 
@@ -724,7 +739,7 @@
                         html += `
                             <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid var(--border);">
                                 <div style="display: flex; align-items: center; gap: 16px;">
-                                    ${!isPaga ? `<input type="checkbox" class="custom-checkbox" onchange="app.toggleCheckbox(this, ${inst.id})">` : `<div style="width:24px; height:24px; border-radius:50%; background:#E2E8F0; display:flex; align-items:center; justify-content:center;"><i data-lucide="check" size="14" color="#64748B"></i></div>`}
+                                    ${!isPaga ? `<input type="checkbox" class="custom-checkbox" onchange="app.toggleCheckbox(this, ${inst.id})" style="width: 24px; height: 24px; border-radius: 6px; border: 2px solid #CBD5E1; background: white; cursor: pointer; -webkit-appearance: none; appearance: none; position: relative;">` : `<div style="width:24px; height:24px; border-radius:50%; background:#E2E8F0; display:flex; align-items:center; justify-content:center;"><i data-lucide="check" size="14" color="#64748B"></i></div>`}
                                     <div><span style="display: block; font-weight: 700; font-size: 15px; color: ${isPaga ? 'var(--text-sub)' : 'var(--text-main)'};">${inst.label}</span><span style="font-size: 13px; color: var(--text-sub);">Vence em ${inst.dueDate}</span></div>
                                 </div>
                                 <div style="text-align: right;">
@@ -743,8 +758,15 @@
             },
 
             toggleCheckbox(checkbox, instId) {
-                if(checkbox.checked) { appState.selectedInstIds.push(instId); } 
-                else { appState.selectedInstIds = appState.selectedInstIds.filter(id => id !== instId); }
+                if(checkbox.checked) { 
+                    appState.selectedInstIds.push(instId); 
+                    checkbox.style.background = 'var(--success)';
+                    checkbox.style.borderColor = 'var(--success)';
+                } else { 
+                    appState.selectedInstIds = appState.selectedInstIds.filter(id => id !== instId); 
+                    checkbox.style.background = 'white';
+                    checkbox.style.borderColor = '#CBD5E1';
+                }
                 this.updateSelectionBar();
             },
 
