@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="pt-br" anty-app="paketa-xp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Paketá App - Seu Crédito Digital</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body anty-state="view: 'splash', nav: false, modal: false">
+
+    <svg style="display: none;">
+        <defs><linearGradient id="logo-grad-white" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFFFFF" /><stop offset="100%" stop-color="#E2E8F0" /></linearGradient></defs>
+        <symbol id="paketa-logo" viewBox="0 0 200 200"><path d="M15,100 C45,80 65,95 85,115 C115,75 145,35 185,10 C145,55 105,120 85,150 C60,120 35,110 15,100 Z" fill="currentColor" /></symbol>
+    </svg>
+
+    <div class="overlay" id="overlay" onclick="anty.set('modal', false)"></div>
+
+    <nav class="bottom-nav" id="bottomNav" style="display: none;">
+        <div class="nav-item active" id="nav-home" onclick="anty.goto('home')">
+            <svg width="24" height="24" style="margin-bottom: 4px;" fill="currentColor"><use href="#paketa-logo"></use></svg><span>Início</span>
+        </div>
+        <div class="nav-item" id="nav-loans" onclick="anty.goto('loans-hub')">
+            <i data-lucide="wallet"></i><span>Contratos</span>
+        </div>
+        <div class="nav-item" id="nav-pay" onclick="anty.goto('new')">
+            <i data-lucide="calculator"></i><span>Simular</span>
+        </div>
+    </nav>
+
+    <div anty-view="splash" class="active" style="justify-content: center; align-items: center; text-align: center;">
+        <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <div style="width: 100px; height: 100px; background: var(--primary); border-radius: 32px; display: flex; align-items: center; justify-content: center; margin-bottom: 32px; box-shadow: 0 20px 40px rgba(0, 112, 224, 0.25);">
+                <svg width="60" height="60" fill="url(#logo-grad-white)"><use href="#paketa-logo"></use></svg>
+            </div>
+            <h1 style="font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-bottom: 12px; color: var(--text-main);">Paketá</h1>
+            <p style="color: var(--text-sub); font-size: 16px; max-width: 260px; line-height: 1.5;">O crédito consignado que respeita o seu salário.</p>
+        </div>
+        <div style="width: 100%; padding: 0 24px 32px 24px; display: flex; flex-direction: column; gap: 16px;">
+            <div class="trust-badge" style="justify-content: center; margin-bottom: 8px;"><i data-lucide="shield-check" size="16"></i> Ambiente 100% Seguro</div>
+            <button class="btn btn-primary" onclick="app.iniciarFluxo('login')">Acessar a minha conta</button>
+            <button class="btn btn-outline" style="background: white;" onclick="app.iniciarFluxo('primeiro-acesso')">Primeiro Acesso</button>
+            <button class="btn btn-text" onclick="app.iniciarFluxo('novo')">Simular novo crédito</button>
+        </div>
+    </div>
+
+    <div anty-view="login">
+        <header class="header-top" style="padding: 24px 20px 0;"><div class="icon-btn" onclick="anty.goto('splash')"><i data-lucide="arrow-left"></i></div></header>
+        <div style="padding: 24px;">
+            <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px;">Acesse seu crédito</h2>
+            <p style="color: var(--text-sub); font-size: 15px; margin-bottom: 32px;">Digite o seu CPF e senha para gerenciar seus contratos.</p>
+            <div class="card" style="padding: 24px;">
+                <input type="text" placeholder="CPF" inputmode="numeric">
+                <input type="password" placeholder="Sua senha de 8 dígitos">
+                <div style="text-align: right; margin-bottom: 32px; margin-top: -4px;"><a href="#" style="color: var(--primary); font-size: 14px; font-weight: 600;">Esqueci minha senha</a></div>
+                <button id="btnLogin" class="btn btn-primary" onclick="app.entrarLogin()">Entrar de forma segura</button>
+            </div>
+            <div class="trust-badge" style="justify-content: center; margin-top: 24px;"><i data-lucide="lock" size="14"></i> Protegido com criptografia de ponta a ponta</div>
+        </div>
+    </div>
+
+    <div anty-view="primeiro-acesso-cpf">
+        <header class="header-top" style="padding: 24px 20px 0;"><div class="icon-btn" onclick="anty.goto('splash')"><i data-lucide="arrow-left"></i></div></header>
+        <div style="padding: 20px;">
+            <h2 style="font-size: 26px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px;">Primeiro Acesso</h2>
+            <p style="color: var(--text-sub); font-size: 15px; margin-bottom: 32px;">Se você já tem um contrato mas nunca acessou o app, digite seu CPF.</p>
+            <div class="card" style="padding: 24px;">
+                <input type="text" id="inputCpfPrimeiro" placeholder="000.000.000-00" inputmode="numeric">
+                <button class="btn btn-primary" onclick="app.enviarCpf('primeiro-acesso')">Continuar</button>
+            </div>
+        </div>
+    </div>
+
+    <div anty-view="novo-cpf">
+        <header class="header-top" style="padding: 24px 20px 0;"><div class="icon-btn" onclick="anty.goto('splash')"><i data-lucide="arrow-left"></i></div></header>
+        <div style="padding: 24px;">
+            <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px;">Vamos descobrir seu limite?</h2>
+            <p style="color: var(--text-sub); font-size: 15px; margin-bottom: 32px;">Precisamos de apenas dois dados para fazer uma simulação sem compromisso.</p>
+            <div class="card" style="padding: 24px;">
+                <div class="input-group">
+                    <label>Seu CPF</label>
+                    <input type="text" id="inputCpfNovo" placeholder="Ex: 000.000.000-00" inputmode="numeric">
+                </div>
+                <div class="input-group">
+                    <label>Número de Celular</label>
+                    <input type="tel" placeholder="(11) 99999-9999" inputmode="numeric">
+                </div>
+                <button class="btn btn-primary" style="margin-top: 8px;" onclick="app.enviarCpf('novo')">Ver meu limite agora</button>
+            </div>
+        </div>
+    </div>
+
+    <div anty-view="sms">
+        <header class="header-top" style="padding: 24px 20px 0;"><div class="icon-btn" onclick="app.voltarCpf()"><i data-lucide="arrow-left"></i></div></header>
+        <div style="padding: 24px; text-align: center;">
+            <div style="width: 72px; height: 72px; background: rgba(0,112,224,0.1); border-radius: 24px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 24px;"><i data-lucide="smartphone" color="var(--primary)" size="36"></i></div>
+            <h2 style="font-size: 26px; font-weight: 800; margin-bottom: 8px;">Código de Segurança</h2>
+            <p style="color: var(--text-sub); font-size: 15px; margin-bottom: 32px; line-height: 1.5;">Enviamos um SMS com 6 dígitos para o seu celular. Isso garante que só você veja suas ofertas.</p>
+            <input type="text" placeholder="0 0 0 0 0 0" style="text-align: center; font-size: 28px; letter-spacing: 12px; font-weight: 800; padding: 24px; background: white;" inputmode="numeric">
+            <button id="btnSms" class="btn btn-primary" onclick="app.validarSms()">Validar Código</button>
+        </div>
+    </div>
+
+    <div anty-view="criar-senha">
+        <header class="header-top" style="padding: 24px 20px 0;"><div class="icon-btn" onclick="anty.goto('splash')"><i data-lucide="x"></i></div></header>
+        <div style="padding: 20px;">
+            <h2 style="font-size: 26px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px;">Crie sua senha</h2>
+            <p style="color: var(--text-sub); font-size: 15px; margin-bottom: 32px;">Para acessar o app nas próximas vezes, crie uma senha segura.</p>
+            <div class="card" style="padding: 24px;">
+                <input type="password" placeholder="Nova Senha (Mín. 8 dígitos)">
+                <input type="password" placeholder="Confirmar Senha" style="margin-bottom: 32px;">
+                <button class="btn btn-primary" onclick="anty.goto('confirmar-dados')">Salvar Senha</button>
+            </div>
+        </div>
+    </div>
+
+    <div anty-view="confirmar-dados">
+        <header class="header-top" style="padding: 24px 20px 0;"><div class="icon-btn" onclick="anty.goto('splash')"><i data-lucide="x"></i></div></header>
+        <div style="padding: 20px;">
+            <h2 style="font-size: 26px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px;">Tudo certo!</h2>
+            <p style="color: var(--text-sub); font-size: 15px; margin-bottom: 24px;">Localizamos seus contratos ativos. Confirme seus dados para acessar o app.</p>
+            <div class="card" style="padding: 40px 24px; text-align: center;">
+                <div style="width: 80px; height: 80px; background: var(--primary-light); color: white; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; margin-bottom: 24px; box-shadow: 0 8px 16px rgba(0, 112, 224, 0.2);">JS</div>
+                <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">João da Silva</h3>
+                <p style="color: var(--text-sub); font-size: 15px; margin-bottom: 40px;">Final do Celular: **-9999</p>
+                <button class="btn btn-primary" onclick="app.entrarDashboard()">Acessar Minha Conta</button>
+            </div>
+        </div>
+    </div>
+
+    <div anty-view="loading" style="justify-content: center; align-items: center; text-align: center; padding: 24px;">
+        <div class="spinner"></div>
+        <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 12px;">Analisando seu perfil...</h2>
+        <p style="color: var(--text-sub); font-size: 16px; line-height: 1.5;">Buscando as melhores taxas do mercado baseadas no seu histórico CLT.</p>
+    </div>
+
+    <div anty-view="negado" style="justify-content: center; align-items: center; text-align: center; padding: 20px;">
+        <div style="width: 80px; height: 80px; background: #FEF2F2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;"><i data-lucide="x-circle" color="#EF4444" size="40"></i></div>
+        <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 12px; color: #0F172A;">Não foi dessa vez.</h2>
+        <p style="color: var(--text-sub); font-size: 16px; margin-bottom: 16px;">No momento, não encontramos margem consignável disponível vinculada ao seu CPF.</p>
+        <div style="background: white; border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 32px; width: 100%;">
+            <strong>Para dúvidas, procure o RH da sua empresa.</strong>
+        </div>
+        <button class="btn btn-outline" onclick="anty.goto('splash')">Voltar ao Início</button>
+    </div>
+
+    <div anty-view="aprovado-cadastro">
+        <header class="header-top" style="padding: 24px 20px 0;"><div class="icon-btn" onclick="anty.goto('splash')"><i data-lucide="x"></i></div></header>
+        <div style="padding: 20px;">
+            <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--success-light); color: #065F46; padding: 6px 12px; border-radius: 100px; font-weight: 700; font-size: 13px; margin-bottom: 16px;"><i data-lucide="party-popper" size="16"></i> Margem Aprovada!</div>
+            <h2 style="font-size: 26px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px;">Complete seu perfil</h2>
+            <p style="color: var(--text-sub); font-size: 15px; margin-bottom: 24px;">Falta pouco para você simular seu crédito.</p>
+            <div class="card" style="padding: 24px;">
+                <input type="text" id="cadNome" placeholder="Nome completo" value="João Silva">
+                <input type="email" placeholder="E-mail">
+                <input type="password" placeholder="Crie uma senha de acesso">
+                <button class="btn btn-primary" style="margin-top: 8px;" onclick="app.finalizarCadastro()">Continuar</button>
+            </div>
+        </div>
+    </div>
+
+    <div anty-view="gov-br" style="justify-content: center; align-items: center; padding: 24px; text-align: center;">
+        <div style="width: 88px; height: 88px; background: white; border-radius: 28px; box-shadow: var(--shadow-md); display: flex; align-items: center; justify-content: center; margin-bottom: 24px;"><i data-lucide="shield-check" color="#1351b4" size="48"></i></div>
+        <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 12px; color: #0F172A;">Autorização Segura</h2>
+        <p style="color: var(--text-sub); font-size: 16px; margin-bottom: 32px; line-height: 1.5;">Para liberar seu limite com as taxas exclusivas do Consignado, conecte-se ao Gov.br.</p>
+        
+        <div class="card" style="text-align: left; margin-bottom: 32px; background: #F8FAFC;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;"><i data-lucide="check-circle-2" color="var(--success)" size="20"></i> <span style="font-size: 14px; font-weight: 600;">Processo 100% seguro (LGPD)</span></div>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;"><i data-lucide="check-circle-2" color="var(--success)" size="20"></i> <span style="font-size: 14px; font-weight: 600;">Garante a menor taxa de juros</span></div>
+            <div style="display: flex; align-items: center; gap: 12px;"><i data-lucide="check-circle-2" color="var(--success)" size="20"></i> <span style="font-size: 14px; font-weight: 600;">Aprovação instantânea, sem papel</span></div>
+        </div>
+        <button id="btnGov" class="btn btn-primary" style="background: #1351b4; box-shadow: 0 8px 20px rgba(19, 81, 180, 0.3);" onclick="app.autorizarGov()">Autorizar com gov.br</button>
+    </div>
+
+    <div anty-view="home">
+        <div class="hero-section">
+            <header class="hero-header-top">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 48px; height: 48px; background: rgba(255,255,255,0.2); border-radius: 16px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); cursor: pointer; transition: transform 0.2s;" onclick="window.location.href='./index.html'" onmousedown="this.style.transform='scale(0.95)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
+                        <svg width="24" height="24" fill="#FFFFFF"><use href="#paketa-logo"></use></svg>
+                    </div>
+                    <div><h3 style="font-size: 15px; font-weight: 500; opacity: 0.9;">Olá,</h3><h3 style="font-size: 20px; font-weight: 800; line-height: 1.1;"><span id="userNameRender">Cliente</span></h3></div>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button class="hero-icon-btn" onclick="app.toggleBalance()" id="eyeToggleBtn"><i data-lucide="eye"></i></button>
+                    <button class="hero-icon-btn" onclick="app.openChat()"><i data-lucide="message-circle"></i></button>
+                </div>
+            </header>
+            <div style="margin-top: 16px;">
+                <p style="opacity: 0.85; font-size: 15px; font-weight: 500; margin-bottom: 4px;">Limite disponível</p>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <h1 id="homeAvailableLimit" class="balance-huge">R$ 0,00</h1>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px; background: rgba(255,255,255,0.1); padding: 16px 20px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                    <div>
+                        <p style="font-size: 13px; opacity: 0.8; margin-bottom: 4px; font-weight: 500;">Total em aberto</p>
+                        <p id="totalBalance" style="font-size: 18px; font-weight: 800;">R$ 0,00</p>
+                    </div>
+                    <button style="background: white; color: var(--primary-dark); padding: 10px 16px; font-size: 13px; border-radius: 100px; font-weight: 700; cursor:pointer; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" onclick="anty.goto('loans-hub')">Ver parcelas</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content-overlap">
+            <h4 style="font-size: 18px; font-weight: 800; margin-bottom: 16px; color: var(--text-main);">Oportunidades para você</h4>
+            
+            <div class="h-scroll" style="margin-bottom: 32px;">
+                <div class="offer-card has-bg" onclick="app.startFGTS()" style="background-color: var(--success); background-image: url('https://images.unsplash.com/photo-1579621970795-87facc2f976d?auto=format&fit=crop&w=400&q=80');">
+                    <div class="card-content">
+                        <div style="background: var(--success); color: white; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; text-transform: uppercase; display: inline-block; margin-bottom: 8px;">Novo</div>
+                        <h4 style="font-size: 18px; font-weight: 800; margin-bottom: 4px; letter-spacing: -0.5px;">Antecipação FGTS</h4>
+                        <p style="color: rgba(255,255,255,0.9); font-size: 14px; line-height: 1.4;">Dinheiro extra na conta hoje, sem mexer no salário.</p>
+                    </div>
+                </div>
+
+                <div class="offer-card has-bg" onclick="anty.goto('new')" style="background-color: var(--primary); background-image: url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=400&q=80');">
+                    <div class="card-content">
+                        <h4 style="font-size: 18px; font-weight: 800; margin-bottom: 4px; letter-spacing: -0.5px;">Novo Consignado</h4>
+                        <p style="color: rgba(255,255,255,0.9); font-size: 14px; line-height: 1.4;">Aproveite sua margem com as menores taxas.</p>
+                    </div>
+                </div>
+                
+                <div class="offer-card has-bg" onclick="anty.goto('education');" style="background-color: var(--primary-dark); background-image: url('https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&w=400&q=80');">
+                    <div class="card-content">
+                        <h4 style="font-size: 17px; font-weight: 700; margin-bottom: 4px;">Educação Financeira</h4>
+                        <p style="color: rgba(255,255,255,0.9); font-size: 13px; line-height: 1.4;">Aprenda a organizar suas finanças.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 16px;">
+                <h4 style="font-size: 18px; font-weight: 800; color: var(--text-main);">Próximas Parcelas</h4>
+                <a href="#" style="color: var(--primary); font-size: 14px; font-weight: 700; text-decoration: none;" onclick="anty.goto('loans-hub')">Ver evolução</a>
+            </div>
+            
+            <div class="card-flat" id="homeInstallmentsList"></div>
+        </div>
+    </div> 
+
+    <div anty-view="education" style="background: var(--bg);">
+        <header class="header-top" style="justify-content: flex-start; gap: 16px; padding: 24px 20px 0; margin-bottom: 24px;">
+            <div class="icon-btn" onclick="anty.goto('home');"><i data-lucide="arrow-left"></i></div>
+            <h2 style="font-size: 20px; font-weight: 700;">Educação Financeira</h2>
+        </header>
+
+        <div style="padding: 0 20px;">
+            <p style="color: var(--text-sub); font-size: 15px; margin-bottom: 24px;">Tire suas dúvidas e aprenda a usar seu crédito de forma inteligente e saudável.</p>
+
+            <div class="faq-card" onclick="app.toggleFaq(this)">
+                <div class="faq-header">
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <div style="background: #E6F3FF; color: var(--primary); padding: 8px; border-radius: 10px; flex-shrink: 0;"><i data-lucide="piggy-bank" size="20"></i></div>
+                        <h4 style="font-size: 15px; font-weight: 700; margin: 0; color: var(--text-main);">Como funciona o Consignado?</h4>
+                    </div>
+                    <i data-lucide="chevron-down" class="faq-chevron"></i>
+                </div>
+                <div class="faq-body">
+                    <div style="height: 1px; background: var(--border); margin: 16px 0;"></div>
+                    <p style="font-size: 14px; color: var(--text-sub); line-height: 1.5; margin: 0;">O valor da parcela é descontado diretamente da sua folha de pagamento todos os meses. Como o risco de atraso é quase zero, oferecemos as <strong>menores taxas de juros</strong> do mercado.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div anty-view="loans-hub" style="background: var(--bg);">
+        <header style="margin-bottom: 24px; padding-top: 24px; padding-left: 20px; padding-right: 20px;"><div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;"><div class="icon-btn" onclick="anty.goto('home')"><i data-lucide="arrow-left" color="var(--text-main)"></i></div><h2 style="font-size: 28px; font-weight: 800; color: var(--text-main);">Contratos</h2></div></header>
+        <div style="padding: 0 20px;">
+            <div class="card" onclick="anty.goto('new')" style="background: white; border-radius: 24px; padding: 20px; display: flex; align-items: center; gap: 16px; cursor: pointer; border: none; margin-bottom: 32px;"><div style="width: 48px; height: 48px; background: #E6F3FF; border-radius: 50%; display: flex; align-items: center; justify-content: center;"><i data-lucide="plus" color="var(--primary)"></i></div><div><h4 style="font-size: 16px; font-weight: 700;">Simular Empréstimo</h4><p style="color: #64748B; font-size: 13px;">Consignado com taxas exclusivas</p></div></div>
+            
+            <h4 style="font-size: 18px; font-weight: 700; margin-bottom: 16px;">Ativos</h4>
+            <div id="contractsContainer"></div>
+        </div>
+    </div>
+
+    <div anty-view="contract-details" style="background: var(--bg);">
+        <header class="header-top" style="justify-content: flex-start; gap: 16px; padding: 24px 20px 0; margin-bottom: 24px;">
+            <div class="icon-btn" onclick="anty.goto('loans-hub')"><i data-lucide="arrow-left"></i></div>
+            <h2 style="font-size: 20px; font-weight: 700;">Detalhes do Contrato</h2>
+        </header>
+        
+        <div style="padding: 0 20px;" id="contractDetailsContainer"></div>
+
+        <div class="selection-bar" id="selectionBar">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <div>
+                    <span style="display: block; font-size: 13px; color: var(--text-sub); font-weight: 600;">Total Selecionado</span>
+                    <span id="selectionTotal" style="font-size: 24px; font-weight: 800; color: var(--primary);">R$ 0,00</span>
+                </div>
+                <div style="text-align: right;">
+                    <span style="background: var(--success-light); color: #065F46; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 700;" id="selectionDiscount">- R$ 0,00 de desc.</span>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="app.paySelectedInstallments()">Gerar PIX e Quitar</button>
+        </div>
+    </div>
+
+    <div anty-view="new">
+        <header class="header-top" style="justify-content: flex-start; gap: 16px; padding: 24px 20px 0;"><div class="icon-btn" onclick="anty.goto('home')"><i data-lucide="arrow-left"></i></div><h2 style="font-size: 20px; font-weight: 700;">Simulador Consignado</h2></header>
+        
+        <div class="card" style="text-align: center; padding: 40px 24px; margin: 20px;">
+            <p style="color: var(--text-sub); font-size: 15px; margin-bottom: 8px;">Seu limite disponível para contratação</p>
+            <h2 id="availableLimit" style="color: var(--success); font-size: 36px; font-weight: 700; margin-bottom: 32px;">R$ 5.250,00</h2>
+            
+            <div style="text-align: left;">
+                <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px;">Qual valor você precisa?</label>
+                <input type="number" id="loanAmount" placeholder="Ex: 1000">
+
+                <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 12px; margin-top: 16px;">Em quantas vezes?</label>
+                
+                <div class="installments-selector">
+                    <div class="inst-pill" onclick="app.selectInstallment(6, this)">6x</div>
+                    <div class="inst-pill active" onclick="app.selectInstallment(12, this)">12x</div>
+                    <div class="inst-pill" onclick="app.selectInstallment(24, this)">24x</div>
+                    <div class="inst-pill" onclick="app.selectInstallment(36, this)">36x</div>
+                    <div class="inst-pill" onclick="app.selectInstallment(48, this)">48x</div>
+                </div>
+                <input type="hidden" id="loanMonths" value="12">
+            </div>
+
+            <button id="btnSimulate" class="btn btn-primary" onclick="app.simulateLoan()">Simular Parcelas</button>
+            
+            <div id="simulationResult" style="display: none; margin-top: 24px; text-align: left; padding-top: 24px; border-top: 1px dashed var(--border);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                    <div>
+                        <p style="font-size: 13px; font-weight: 600; text-transform: uppercase;">Oferta Selecionada</p>
+                        <b style="font-size: 22px; color: var(--primary);"><span id="simulatedMonthsLabel">12x</span> de <span id="simulatedInstallment">R$ 0,00</span></b>
+                    </div>
+                </div>
+                <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 24px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 12px;"><span style="color: var(--text-sub);">Valor solicitado</span><b id="simulatedPrincipal">R$ 0,00</b></div>
+                    <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 12px;"><span style="color: var(--text-sub);">Taxa de juros</span><b>1,89% a.m.</b></div>
+                    <div style="display: flex; justify-content: space-between; font-size: 15px;"><span style="font-weight: 600;">Total a pagar</span><b id="simulatedTotal">R$ 0,00</b></div>
+                </div>
+                <button id="btnContract" class="btn btn-primary" onclick="app.contractLoan()" style="background: var(--success); width: 100%;">Confirmar Contratação</button>
+            </div>
+        </div>
+    </div>
+
+    <div anty-view="fgts-simulador">
+        <header class="header-top" style="justify-content: flex-start; gap: 16px; padding: 24px 20px 0;"><div class="icon-btn" onclick="anty.goto('home')"><i data-lucide="arrow-left"></i></div><h2 style="font-size: 20px; font-weight: 800;">Antecipação FGTS</h2></header>
+        
+        <div class="card" style="text-align: center; padding: 40px 24px; margin: 24px;">
+            <div style="width: 64px; height: 64px; background: var(--success-light); border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 24px;"><i data-lucide="landmark" color="var(--success)" size="32"></i></div>
+            
+            <p style="color: var(--text-sub); font-size: 15px; margin-bottom: 8px;">Saldo disponível retido na Caixa</p>
+            <h2 id="fgtsBalanceRender" style="color: var(--text-main); font-size: 36px; font-weight: 800; margin-bottom: 32px; letter-spacing: -1px;">R$ 3.450,00</h2>
+            
+            <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 16px; padding: 20px; text-align: left; margin-bottom: 32px;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;"><i data-lucide="check" color="var(--success)" size="18"></i> <span style="font-size: 14px; font-weight: 600;">Sem parcelas mensais</span></div>
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;"><i data-lucide="check" color="var(--success)" size="18"></i> <span style="font-size: 14px; font-weight: 600;">Não compromete sua renda</span></div>
+                <div style="display: flex; align-items: center; gap: 12px;"><i data-lucide="check" color="var(--success)" size="18"></i> <span style="font-size: 14px; font-weight: 600;">Dinheiro na conta via PIX</span></div>
+            </div>
+
+            <button id="btnSimulateFGTS" class="btn btn-primary" style="background: var(--success); box-shadow: 0 8px 24px -6px rgba(0, 200, 83, 0.4);" onclick="app.simulateFGTS()">Simular Liberação</button>
+            
+            <div id="fgtsSimulationResult" style="display: none; text-align: left; padding-top: 24px; border-top: 1px dashed var(--border);">
+                <div style="background: var(--success-light); border: 1px solid rgba(0,200,83,0.3); border-radius: 16px; padding: 20px; margin-bottom: 24px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 12px;"><span style="color: #065F46;">Valor liberado hoje</span><b id="simulatedFGTSTotal" style="font-size: 20px; color: #065F46;">R$ 0,00</b></div>
+                    <div style="display: flex; justify-content: space-between; font-size: 13px;"><span style="color: #065F46;">Como vou pagar?</span><b id="simulatedFGTSDiscount" style="color: #065F46;">--</b></div>
+                </div>
+                <button class="btn btn-primary" onclick="app.contractLoan()" style="background: var(--text-main);">Contratar e Liberar PIX</button>
+            </div>
+        </div>
+    </div>
+
+    <div anty-view="liveness" style="justify-content: center; align-items: center; text-align: center; padding: 24px; background: #0F172A; color: white;">
+        <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 8px;">Verificação de Identidade</h2>
+        <p style="color: #94A3B8; font-size: 15px; margin-bottom: 48px;">Para sua segurança, precisamos de uma selfie antes de liberar o contrato.</p>
+        
+        <div id="livenessIcon" style="margin-bottom: 32px; display: flex; justify-content: center;"></div>
+        
+        <h3 id="livenessText" style="font-size: 18px; font-weight: 600; min-height: 54px;">Iniciando câmera segura...</h3>
+        
+        <div id="livenessBtn" style="margin-top: auto; width: 100%; display: none;">
+            <button class="btn btn-primary">Tirar foto</button>
+        </div>
+        <div style="margin-top: auto; padding-top: 40px; font-size: 12px; color: #64748B; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <i data-lucide="lock" size="14"></i> Criptografia Bancária
+        </div>
+    </div>
+
+    <div anty-view="success" style="justify-content: center; align-items: center; text-align: center; padding: 24px;">
+        <div style="width: 88px; height: 88px; background: var(--success-light); border-radius: 28px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;"><i data-lucide="party-popper" color="var(--success)" size="48"></i></div>
+        <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 16px; color: var(--text-main);">Tudo Certo!</h2>
+        <p id="successMessageRender" style="color: var(--text-sub); font-size: 16px; margin-bottom: 40px; line-height: 1.5;">Operação concluída com sucesso.</p>
+        
+        <button class="btn btn-primary" style="margin-bottom: 16px;" onclick="anty.goto('loans-hub')">Ver meus Contratos</button>
+        <button class="btn btn-outline" onclick="anty.goto('home')">Voltar ao Início</button>
+    </div>
+
+    <div class="bottom-sheet" id="modal">
+        <div class="bottom-sheet-handle"></div>
+        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 24px;"><h3 style="font-size: 24px; font-weight: 800; letter-spacing: -0.5px;">Antecipar Parcela</h3><div style="width: 40px; height: 40px; border-radius: 12px; background: #F1F5F9; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="anty.set('modal', false)"><i data-lucide="x" size="20"></i></div></div>
+        
+        <div class="card" style="padding: 24px; box-shadow: none; border: 1px solid var(--border); margin-bottom: 24px; background: #F8FAFC;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border); padding-bottom: 16px; margin-bottom: 16px;">
+                <div><span id="modalInstLabel" style="font-weight: 800; display: block; font-size: 16px;">1ª Parcela</span><span id="modalInstDate" style="font-size: 14px; color: var(--text-sub);">Vence em --</span></div>
+                <div style="background: rgba(0,112,224,0.1); color: var(--primary); padding: 6px 12px; border-radius: 100px; font-size: 12px; font-weight: 700;">Em aberto</div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                <span style="font-weight: 600; font-size: 16px;">Valor a pagar hoje</span>
+                <span id="modalTotal" style="color: var(--success); font-size: 28px; font-weight: 800; letter-spacing: -1px;">R$ 0,00</span>
+            </div>
+            <div style="text-align: right; margin-top: 8px; font-size: 13px; color: var(--success); font-weight: 600;"><span id="modalOriginal" style="text-decoration: line-through; color: var(--text-sub); margin-right: 8px;"></span><span id="modalDiscount"></span></div>
+        </div>
+        
+        <button class="btn btn-primary" onclick="app.paySingleInstallment()">Gerar PIX com Desconto</button>
+        <button class="btn btn-outline" style="margin-top: 16px; border: none; font-size: 15px;" onclick="app.goToAnteciparMais()">Quero antecipar várias parcelas</button>
+    </div>
+
+    <div class="chat-overlay" id="chatOverlay" onclick="app.closeChat()"></div>
+    <div class="chat-modal" id="chatModal">
+        <div class="chat-header">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i data-lucide="bot" size="24"></i>
+                </div>
+                <div>
+                    <h3 style="font-size: 16px; font-weight: 700; margin: 0;">Assistente Paketá</h3>
+                    <span style="font-size: 12px; opacity: 0.8;">Online agora</span>
+                </div>
+            </div>
+            <div style="cursor: pointer; padding: 4px;" onclick="app.closeChat()"><i data-lucide="x" size="20"></i></div>
+        </div>
+        <div class="chat-body" id="chatBody">
+            <div class="chat-bubble chat-bot">
+                Olá! 👋 Sou o assistente virtual da Paketá. Como posso ajudar hoje? Escolha uma das opções abaixo:
+                <div class="chat-options" id="initialOptions">
+                    <button class="chat-option-btn" onclick="app.chatAction('antecipar')">Como antecipar parcelas?</button>
+                    <button class="chat-option-btn" onclick="app.chatAction('taxas')">Dúvidas sobre Taxas</button>
+                    <button class="chat-option-btn" onclick="app.chatAction('humano')">Falar com um Assistente</button>
+                </div>
+            </div>
+        </div>
+        <div class="chat-footer">
+            <input type="text" id="userChatInput" placeholder="Digite a sua mensagem..." style="flex-grow: 1; background: #F1F5F9; border-radius: 100px; padding: 12px 16px; color: var(--text-main); font-size: 14px; border: 1px solid var(--border); outline: none;" onkeypress="if(event.key === 'Enter') app.sendUserMessage()">
+            <div style="width: 44px; height: 44px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; flex-shrink: 0;" onclick="app.sendUserMessage()">
+                <i data-lucide="send" size="18" style="margin-left: -2px;"></i>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/app.js"></script>
+</body>
+</html>
