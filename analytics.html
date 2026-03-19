@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador - Paketá UX Analytics</title>
+    <style>
+        :root {
+            --primary: #00e676;
+            --bg-dark: #121212;
+            --panel-bg: #1e1e1e;
+            --text-light: #e0e0e0;
+            --danger: #ff5252;
+            --warning: #ffb74d;
+        }
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, sans-serif; display: flex; height: 100vh; background-color: var(--bg-dark); color: var(--text-light); }
+        
+        /* Mobile App Simulador (Esquerda) */
+        .app-container { width: 40%; display: flex; justify-content: center; align-items: center; border-right: 1px solid #333; background-color: #0a0a0a; }
+        .mobile-frame { width: 320px; height: 620px; background-color: white; border-radius: 30px; border: 8px solid #333; padding: 20px; color: #333; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column;}
+        .screen { display: none; flex-direction: column; height: 100%; justify-content: center;}
+        .screen.active { display: flex; }
+        
+        .app-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 10px; text-align: center; color: #111; }
+        .app-text { font-size: 0.9rem; margin-bottom: 20px; text-align: center; color: #555;}
+        
+        input { width: 90%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; font-size: 1rem; align-self: center;}
+        button.app-btn { background-color: #000; color: #fff; padding: 14px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 10px; width: 100%; transition: 0.2s;}
+        button.app-btn:hover { background-color: #333; }
+        .btn-outline { background-color: transparent !important; color: #000 !important; border: 1px solid #000 !important; }
+        .btn-success { background-color: #00c853 !important; }
+        
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #000; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; align-self: center; margin-bottom: 20px;}
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Dashboard Analytics (Direita) */
+        .dash-container { width: 60%; padding: 30px; overflow-y: auto; }
+        .dash-header { border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 20px;}
+        .log-box { background-color: var(--panel-bg); padding: 15px; border-radius: 8px; font-family: monospace; height: 200px; overflow-y: auto; margin-bottom: 20px; border-left: 4px solid var(--primary); }
+        .log-entry { margin-bottom: 5px; font-size: 0.9rem; color: #bbb; border-bottom: 1px solid #222; padding-bottom: 3px;}
+        
+        .btn-analisar { background-color: var(--primary); color: #000; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem; width: 100%; margin-bottom: 20px;}
+        .btn-analisar:hover { opacity: 0.9; transform: scale(1.01); }
+        
+        .insight-card { background-color: var(--panel-bg); padding: 15px; border-radius: 8px; margin-bottom: 10px; display: none; }
+        .tag { display: inline-block; background-color: #333; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; margin-top: 10px; color: #fff;}
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <div class="mobile-frame">
+            
+            <div id="screen-home" class="screen active">
+                <div class="app-title">Paketá Crédito</div>
+                <div class="app-text">Crédito Consignado sem complicação.</div>
+                <button class="app-btn" onclick="iniciarFluxo('existente')">Já sou cliente</button>
+                <button class="app-btn btn-outline" onclick="iniciarFluxo('novo')">Simular novo empréstimo</button>
+            </div>
+
+            <div id="screen-novo-cpf" class="screen">
+                <div class="app-title">Vamos começar!</div>
+                <div class="app-text">Informe os seus dados para simularmos a sua margem.</div>
+                <input type="text" id="input-cpf-novo" placeholder="CPF (Ex: 00... ou 11...)">
+                <input type="text" placeholder="Telemóvel">
+                <button class="app-btn" onclick="enviarCpf('novo')">Continuar</button>
+                <button class="app-btn btn-outline" onclick="nav('screen-home', 'Voltou para Home')">Voltar</button>
+            </div>
+
+            <div id="screen-existe-cpf" class="screen">
+                <div class="app-title">Bem-vindo de volta</div>
+                <div class="app-text">Digite o seu CPF para aceder.</div>
+                <input type="text" id="input-cpf-existe" placeholder="O seu CPF">
+                <button class="app-btn" onclick="enviarCpf('existente')">Entrar</button>
+                <button class="app-btn btn-outline" onclick="nav('screen-home', 'Voltou para Home')">Voltar</button>
+            </div>
+
+            <div id="screen-sms" class="screen">
+                <div class="app-title">Validação Segura</div>
+                <div class="app-text">Enviámos um SMS com 6 dígitos para si.</div>
+                <input type="text" placeholder="000000" style="text-align: center; font-size: 1.5rem; letter-spacing: 5px;">
+                <button class="app-btn" onclick="validarSms()">Confirmar Código</button>
+            </div>
+
+            <div id="screen-loading" class="screen">
+                <div class="spinner"></div>
+                <div class="app-title">A analisar o seu perfil...</div>
+                <div class="app-text">A ligar com as bases de dados e a validar a margem CLT.</div>
+            </div>
+
+            <div id="screen-negado" class="screen">
+                <div class="app-title" style="color: red;">Não foi desta vez.</div>
+                <div class="app-text">No momento, não encontrámos margem consignável disponível para o seu perfil.</div>
+                <div class="app-text"><strong>Para dúvidas, procure os Recursos Humanos da sua empresa.</strong></div>
+                <button class="app-btn btn-outline" onclick="nav('screen-home', 'Finalizou Sessão - Negado')">Sair</button>
+            </div>
+
+            <div id="screen-aprovado-cadastro" class="screen">
+                <div class="app-title" style="color: green;">Margem Aprovada! 🎉</div>
+                <div class="app-text">Tem crédito disponível! Complete os dados para simular.</div>
+                <input type="text" placeholder="Nome Completo">
+                <input type="date">
+                <input type="email" placeholder="E-mail">
+                <button class="app-btn btn-success" onclick="nav('screen-simulador', 'Preencheu dados complementares')">Ir para Simulação</button>
+            </div>
+
+            <div id="screen-confirmar-dados" class="screen">
+                <div class="app-title">Confirme os seus dados</div>
+                <div class="app-text">Identificámos que já possui contratos.</div>
+                <div style="background: #f1f1f1; padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center;">
+                    <strong>João da Silva</strong><br>Final do Telemóvel: **-9999
+                </div>
+                <button class="app-btn btn-success" onclick="nav('screen-dashboard', 'Confirmou identidade')">Aceder à Minha Conta</button>
+            </div>
+
+            <div id="screen-dashboard" class="screen">
+                <div class="app-title">Meus Empréstimos</div>
+                <div class="app-text">Tem 1 contrato ativo.</div>
+                <button class="app-btn btn-outline">Antecipar Parcelas</button>
+                <button class="app-btn btn-success" onclick="nav('screen-simulador', 'Clicou em Novo Empréstimo')">Novo Empréstimo</button>
+            </div>
+
+            <div id="screen-simulador" class="screen">
+                <div class="app-title">Simulador</div>
+                <div class="app-text">Tem até R$ 5.000 pré-aprovados.</div>
+                <input type="range" min="1000" max="5000" style="width:100%;">
+                <button class="app-btn">Contratar Agora</button>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="dash-container">
+        <div class="dash-header">
+            <h2>Datadog / Product Analytics Interno</h2>
+            <span style="color: var(--primary);">🟢 Monitorização de Sessão Ativa</span>
+        </div>
+
+        <h3>Log da Jornada (Tempo Real)</h3>
+        <div class="log-box" id="live-logs"></div>
+
+        <button class="btn-analisar" onclick="gerarRelatorio()">📊 Gerar Relatório de UX e Negócios</button>
+
+        <div id="insights-panel">
+            <div class="insight-card" id="card-regra-negocio" style="border-left: 4px solid var(--warning);">
+                <strong style="color: var(--warning);">⚠️ Regra de Negócio: Cliente sem Margem</strong>
+                <p>O utilizador teve a jornada encerrada corretamente pois não possui margem CLT (CPF 00). Não é um erro de sistema, mas sugere-se incluir um botão "Avise-me quando tiver margem" para reter o lead.</p>
+                <span class="tag">Oportunidade de Retenção</span>
+            </div>
+
+            <div class="insight-card" id="card-sucesso-novo" style="border-left: 4px solid var(--primary);">
+                <strong style="color: var(--primary);">✅ Conversão: Novo Cliente</strong>
+                <p>O utilizador (CPF 11) passou pelo funil de onboarding progressivo sem atritos. O tempo entre digitar o CPF e chegar ao Simulador foi excelente.</p>
+                <span class="tag">Jornada Saudável</span>
+            </div>
+
+            <div class="insight-card" id="card-sucesso-base" style="border-left: 4px solid #2196f3;">
+                <strong style="color: #2196f3;">🔄 Retenção: Cliente da Base</strong>
+                <p>O utilizador "Já Cliente" acedeu rapidamente à área logada via SMS, sem precisar de recadastrar dados. Baixo atrito identificado.</p>
+                <span class="tag">CX Positivo</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let timeStart = Date.now();
+        let fluxoAtual = '';
+        let cpfDigitado = '';
+
+        function addLog(msg) {
+            let timeSeconds = ((Date.now() - timeStart) / 1000).toFixed(1);
+            let logStr = `[+${timeSeconds}s] ${msg}`;
+            let logBox = document.getElementById('live-logs');
+            logBox.innerHTML += `<div class="log-entry">${logStr}</div>`;
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        function nav(telaId, logMsg) {
+            if(logMsg) addLog(logMsg);
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(telaId).classList.add('active');
+        }
+
+        // 1. Inicia Escolha
+        function iniciarFluxo(tipo) {
+            fluxoAtual = tipo;
+            if(tipo === 'novo') {
+                nav('screen-novo-cpf', 'Acedeu à jornada: Não sou cliente');
+            } else {
+                nav('screen-existe-cpf', 'Acedeu à jornada: Já sou cliente');
+            }
+        }
+
+        // 2. Captura CPF
+        function enviarCpf(tipo) {
+            if(tipo === 'novo') cpfDigitado = document.getElementById('input-cpf-novo').value;
+            if(tipo === 'existente') cpfDigitado = document.getElementById('input-cpf-existe').value;
+            
+            if(!cpfDigitado) cpfDigitado = "Padrão"; // fallback
+            
+            nav('screen-sms', `Submeteu CPF a iniciar em: ${cpfDigitado.substring(0,3)}...`);
+        }
+
+        // 3. O Cérebro da Operação (Valida SMS e decide para onde vai)
+        function validarSms() {
+            addLog('Validou Token SMS com sucesso');
+            
+            if(fluxoAtual === 'existente') {
+                // PERSONA 3: Já Cliente
+                addLog('Sistema reconheceu cliente na base');
+                nav('screen-confirmar-dados', 'A carregar ecrã de confirmação de identidade');
+            } else {
+                // Fluxo Novo (Análise de Crédito)
+                nav('screen-loading', 'A disparar consulta de margem na API...');
+                
+                setTimeout(() => {
+                    if(cpfDigitado.startsWith('00')) {
+                        // PERSONA 1: Sem crédito
+                        nav('screen-negado', 'RETORNO API: Cliente sem margem consignável');
+                    } else if (cpfDigitado.startsWith('11')) {
+                        // PERSONA 2: Aprovado
+                        nav('screen-aprovado-cadastro', 'RETORNO API: Margem pré-aprovada localizada');
+                    } else {
+                        // Se digitar qualquer outra coisa, aprova por padrão no teste
+                        nav('screen-aprovado-cadastro', 'RETORNO API: Margem pré-aprovada localizada');
+                    }
+                }, 2500); // 2.5 segundos de "loading" falso
+            }
+        }
+
+        // Geração do Relatório Baseado no Fluxo
+        function gerarRelatorio() {
+            document.querySelectorAll('.insight-card').forEach(c => c.style.display = 'none');
+
+            if(fluxoAtual === 'novo' && cpfDigitado.startsWith('00')) {
+                document.getElementById('card-regra-negocio').style.display = 'block';
+            } else if (fluxoAtual === 'novo' && (cpfDigitado.startsWith('11') || cpfDigitado !== '')) {
+                document.getElementById('card-sucesso-novo').style.display = 'block';
+            } else if (fluxoAtual === 'existente') {
+                document.getElementById('card-sucesso-base').style.display = 'block';
+            } else {
+                alert("Navegue no aplicativo primeiro para gerar os dados!");
+            }
+        }
+    </script>
+</body>
+</html>

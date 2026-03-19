@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paketá CRM - Backoffice de Operações</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0070E0; --primary-dark: #004d9e; --primary-light: #338DE6;
+            --sidebar-bg: #0F172A; --sidebar-text: #94A3B8; --sidebar-hover: #1E293B;
+            --bg-main: #F1F5F9; --card-bg: #FFFFFF;
+            --text-main: #1E293B; --text-sub: #64748B; --border: #E2E8F0;
+            --success: #10B981; --success-bg: #D1FAE5;
+            --warning: #F59E0B; --warning-bg: #FEF3C7;
+            --danger: #EF4444; --danger-bg: #FEE2E2;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { display: flex; height: 100vh; background-color: var(--bg-main); color: var(--text-main); overflow: hidden; }
+
+        /* ================= SIDEBAR ================= */
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; }
+        .brand { padding: 24px; color: white; font-size: 24px; font-weight: 800; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 16px; }
+        .nav-item { padding: 14px 24px; color: var(--sidebar-text); display: flex; align-items: center; gap: 12px; cursor: pointer; transition: 0.2s; font-weight: 500; font-size: 14px; }
+        .nav-item:hover, .nav-item.active { background-color: var(--sidebar-hover); color: white; border-left: 4px solid var(--primary); }
+        .nav-badge { background: var(--danger); color: white; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 100px; margin-left: auto; }
+        .operator-profile { margin-top: auto; padding: 24px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 12px; color: white; }
+
+        /* ================= MAIN CONTENT ================= */
+        .main { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .header { background: white; padding: 20px 32px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        .search-bar { background: var(--bg-main); border: 1px solid var(--border); padding: 10px 16px; border-radius: 8px; width: 300px; display: flex; align-items: center; gap: 8px; color: var(--text-sub); }
+        .search-bar input { border: none; background: transparent; outline: none; width: 100%; font-size: 14px; }
+        
+        .content-area { padding: 32px; overflow-y: auto; flex-grow: 1; display: none; }
+        .content-area.active { display: block; animation: fadeIn 0.3s forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0.8; transform: scale(1.02); } }
+
+        /* ================= COMPONENTES ================= */
+        .page-title { font-size: 24px; font-weight: 700; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; }
+        .card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); padding: 24px; margin-bottom: 24px; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 24px; }
+        .stat-card { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
+        .stat-card span { font-size: 13px; color: var(--text-sub); font-weight: 600; text-transform: uppercase; }
+        .stat-card h3 { font-size: 28px; font-weight: 800; color: var(--text-main); }
+
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th { text-align: left; padding: 16px; border-bottom: 2px solid var(--border); color: var(--text-sub); font-size: 12px; font-weight: 600; text-transform: uppercase; }
+        .data-table td { padding: 16px; border-bottom: 1px solid var(--border); font-size: 14px; vertical-align: middle; }
+        .data-table tr:hover { background-color: #F8FAFC; }
+        
+        .badge { padding: 6px 12px; border-radius: 100px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+        .badge.warning { background: var(--warning-bg); color: #B45309; }
+        .badge.success { background: var(--success-bg); color: #047857; }
+        .badge.danger { background: var(--danger-bg); color: #B91C1C; }
+        .badge.neutral { background: #E2E8F0; color: #475569; }
+        .badge.outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
+
+        .btn-action { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px;}
+        .btn-action:hover { background: var(--primary-dark); }
+        .btn-action.outline { background: white; color: var(--text-main); border: 1px solid var(--border); }
+        .btn-action.outline:hover { background: var(--bg-main); }
+
+        /* ================= TELA CX (CHAT) ================= */
+        .cx-layout { display: grid; grid-template-columns: 300px 1fr 340px; gap: 20px; height: calc(100vh - 180px); }
+        .cx-list { background: white; border: 1px solid var(--border); border-radius: 12px; overflow-y: auto; }
+        .cx-item { padding: 16px; border-bottom: 1px solid var(--border); cursor: pointer; transition: 0.2s; border-left: 4px solid transparent; }
+        .cx-item.active { background: var(--bg-main); border-left-color: var(--primary); }
+        .cx-item h4 { font-size: 14px; margin-bottom: 4px; display: flex; justify-content: space-between; }
+        .cx-item p { font-size: 12px; color: var(--text-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .cx-chat { background: white; border: 1px solid var(--border); border-radius: 12px; display: flex; flex-direction: column; }
+        .chat-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .chat-messages { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; background: #F8FAFC; }
+        .chat-input { padding: 16px; border-top: 1px solid var(--border); display: flex; gap: 12px; }
+        .chat-input input { flex-grow: 1; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border); outline: none; }
+        
+        .msg { max-width: 70%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; }
+        .msg.bot { background: #E2E8F0; align-self: flex-start; border-bottom-left-radius: 4px; }
+        .msg.user { background: var(--primary); color: white; align-self: flex-start; border-bottom-left-radius: 4px; }
+        .msg.admin { background: var(--success); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+
+        .cx-context { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 20px; overflow-y: auto; }
+        .context-group { margin-bottom: 24px; }
+        .context-group h5 { font-size: 11px; color: var(--text-sub); text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px; }
+        .context-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; border-bottom: 1px dashed var(--border); padding-bottom: 4px; }
+        .timeline-item { display: flex; gap: 12px; margin-bottom: 16px; font-size: 12px; }
+        .timeline-time { color: var(--text-sub); width: 40px; flex-shrink: 0; }
+        .timeline-desc { color: var(--text-main); font-weight: 500; }
+
+        /* ================= GRÁFICOS DASHBOARD ================= */
+        .chart-area { display: flex; align-items: flex-end; gap: 16px; height: 180px; padding-top: 20px; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 16px; }
+        .bar-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; flex: 1; height: 100%; gap: 8px; }
+        .bar { width: 100%; max-width: 48px; background: var(--primary); border-radius: 6px 6px 0 0; }
+        .bar.light { background: var(--primary-light); }
+        .bar.success { background: var(--success); }
+        .bar-label { font-size: 12px; color: var(--text-sub); font-weight: 600; }
+        .progress-track { width: 100%; background: #E2E8F0; height: 8px; border-radius: 10px; overflow: hidden; margin-top: 4px; margin-bottom: 16px;}
+        .progress-fill { height: 100%; border-radius: 10px; }
+        .stars { color: #F59E0B; display: inline-flex; align-items: center; gap: 2px; }
+
+        /* ================= GAVETA PERFIL 360 ================= */
+        .drawer-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(2px); z-index: 3000; display: none; opacity: 0; transition: opacity 0.3s; }
+        .drawer-overlay.show { opacity: 1; }
+        .drawer { position: fixed; top: 0; right: -500px; width: 450px; height: 100vh; background: white; z-index: 3001; box-shadow: -10px 0 40px rgba(0,0,0,0.1); transition: right 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); display: flex; flex-direction: column; }
+        .drawer.open { right: 0; }
+        .drawer-header { padding: 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start; background: #F8FAFC; }
+        .drawer-body { padding: 24px; overflow-y: auto; flex-grow: 1; }
+        .doc-box { border: 1px dashed var(--border); border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 12px; margin-bottom: 12px; background: var(--bg-main); }
+        .internal-note { background: #FEF9C3; border-left: 4px solid #F59E0B; padding: 12px; font-size: 13px; color: #78350F; margin-top: 16px; border-radius: 4px; }
+
+        /* ================= TELA KYC ANALYTICS ================= */
+        .grid-kyc { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .explainable-box { background: rgba(0, 112, 224, 0.05); border: 1px solid rgba(0, 112, 224, 0.2); border-radius: 12px; padding: 16px; height: 100%; }
+        .explainable-item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; font-size: 14px; }
+        .explainable-item:last-child { margin-bottom: 0; }
+        .explainable-icon { color: var(--success); flex-shrink: 0; margin-top: 2px; }
+        
+        .five-c-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 24px; }
+        .five-c-card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
+        .five-c-icon { width: 40px; height: 40px; background: var(--bg-main); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; color: var(--primary); }
+        
+        .ews-alert { background: #FEF2F2; border-left: 4px solid #EF4444; padding: 16px; border-radius: 4px; display: flex; gap: 12px; align-items: flex-start; }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="brand">
+            <div style="width: 32px; height: 32px; background: var(--primary); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                <i data-lucide="building-2" size="20" color="white"></i>
+            </div>
+            Paketá CRM
+        </div>
+        
+        <div class="nav-item active" onclick="switchTab('esteira', this)"><i data-lucide="layers"></i> Esteira de Crédito</div>
+        <div class="nav-item" onclick="switchTab('cx', this)"><i data-lucide="headphones"></i> Central CX <span class="nav-badge">1</span></div>
+        <div class="nav-item" onclick="switchTab('clientes', this)"><i data-lucide="users"></i> Base de Clientes</div>
+        <div class="nav-item" id="nav-kyc" onclick="switchTab('kyc', this)"><i data-lucide="shield-alert"></i> Analytics & Risco</div>
+        <div class="nav-item" onclick="switchTab('equipe', this)"><i data-lucide="award"></i> Gestão de Equipe</div>
+        <div class="nav-item" onclick="switchTab('relatorios', this)"><i data-lucide="pie-chart"></i> Relatórios Gerais</div>
+
+        <div class="operator-profile">
+            <div style="width: 40px; height: 40px; border-radius: 50%; background: #334155; display: flex; align-items: center; justify-content: center; font-weight: bold;">RC</div>
+            <div>
+                <div style="font-size: 14px; font-weight: 600;">Rafael Costa</div>
+                <div style="font-size: 12px; color: var(--sidebar-text);">Operador Sênior</div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="header">
+            <div class="search-bar"><i data-lucide="search" size="18"></i><input type="text" placeholder="Buscar CPF, Nome ou Contrato..."></div>
+            <div style="display: flex; gap: 16px; align-items: center;">
+                <i data-lucide="bell" size="20" color="var(--text-sub)" style="cursor: pointer;"></i>
+                <div style="width: 1px; height: 24px; background: var(--border);"></div>
+                <span style="font-size: 14px; font-weight: 600;">Filial São Paulo</span>
+            </div>
+        </header>
+
+        <div class="content-area active" id="view-esteira">
+            <div class="page-title">
+                Mesa de Operações (Esteira)
+                <button class="btn-action outline"><i data-lucide="filter" size="16"></i> Filtros Avançados</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card"><span>Na Fila de Análise</span><h3 style="color: var(--warning);" id="stat-fila">1</h3></div>
+                <div class="stat-card"><span>Aprovados (Hoje)</span><h3 style="color: var(--success);">48</h3></div>
+                <div class="stat-card"><span>Volume Solicitado</span><h3>R$ 142.500</h3></div>
+                <div class="stat-card"><span>Tempo Médio (SLA)</span><h3>1m 45s</h3></div>
+            </div>
+
+            <div class="card" style="padding: 0; overflow: hidden;">
+                <table class="data-table">
+                    <thead>
+                        <tr><th>Protocolo</th><th>Cliente</th><th>Valor / Parcelas</th><th>Motor IA (Risco)</th><th>Status Operacional</th><th>Ações</th></tr>
+                    </thead>
+                    <tbody id="tabela-esteira">
+                        <tr id="row-joao">
+                            <td><strong style="color: var(--primary);">#PKT-8892</strong><br><span style="color: var(--text-sub); font-size: 11px;">Hoje 14:32</span></td>
+                            <td><strong>João da Silva</strong><br><span style="color: var(--text-sub); font-size: 12px;">CPF: 111.222.333-44</span></td>
+                            <td><strong>R$ 1.500,00</strong><br><span style="color: var(--text-sub); font-size: 12px;">12x de R$ 143,18</span></td>
+                            <td><span class="badge success"><i data-lucide="check-circle" size="12"></i> Score A</span></td>
+                            <td><span class="badge warning" id="status-joao"><i data-lucide="clock" size="12"></i> Aguardando KYC</span></td>
+                            <td><button class="btn-action" onclick="aprovarEmprestimo(this, 'status-joao')"><i data-lucide="check" size="16"></i> Liquidar PIX</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="content-area" id="view-cx">
+            <div class="page-title">
+                Central de Experiência (CX)
+                <span class="badge warning" style="font-size: 14px; padding: 8px 16px;"><i data-lucide="alert-circle" size="16"></i> TMA Atual: Alto (3m)</span>
+            </div>
+
+            <div class="cx-layout">
+                <div class="cx-list">
+                    <div style="padding: 16px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 13px; text-transform: uppercase; color: var(--text-sub); background: #F8FAFC;">Fila de Espera (1)</div>
+                    <div class="cx-item active"><h4>João da Silva <span style="color: var(--danger); font-size: 11px;">02:45 min</span></h4><p>Falar com um Atendente</p></div>
+                </div>
+
+                <div class="cx-chat">
+                    <div class="chat-header">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 40px; height: 40px; background: var(--primary-dark); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">JS</div>
+                            <div><h3 style="font-size: 15px; font-weight: 700;">João da Silva</h3><span style="font-size: 12px; color: var(--success); display: flex; align-items: center; gap: 4px;"><div style="width:6px; height:6px; border-radius:50%; background:var(--success);"></div> App Aberto</span></div>
+                        </div>
+                        <button class="btn-action outline" style="color: var(--danger); border-color: var(--danger);"><i data-lucide="phone-off" size="16"></i> Encerrar</button>
+                    </div>
+                    <div class="chat-messages" id="adminChatBody">
+                        <div style="text-align: center; font-size: 11px; color: var(--text-sub); margin-bottom: 8px;">O cliente interagiu com o Robô às 14:50</div>
+                        <div class="msg user">Falar com um Atendente</div>
+                        <div class="msg bot">Transferindo você para um dos nossos especialistas humanos. O tempo médio de espera é de 2 minutos.</div>
+                        <div style="text-align: center; font-size: 11px; color: var(--warning); margin-bottom: 8px; font-weight: 600;">--- Chat assumido por Rafael Costa ---</div>
+                    </div>
+                    <div class="chat-input">
+                        <button class="btn-action outline" title="Anexar Contrato (CCB)" onclick="enviarAnexoAdmin()"><i data-lucide="paperclip" size="18"></i></button>
+                        <input type="text" id="adminChatInput" placeholder="Digite sua resposta para João..." onkeypress="handleEnter(event)">
+                        <button class="btn-action" onclick="enviarMensagemAdmin()"><i data-lucide="send" size="18"></i> Responder</button>
+                    </div>
+                </div>
+
+                <div class="cx-context">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;"><h3 style="font-size: 16px; font-weight: 800;">Raio-X do Cliente</h3><span class="badge success">Conta Ativa</span></div>
+                    
+                    <div class="context-group">
+                        <h5>Saúde do Crédito (Score IA)</h5>
+                        <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span style="font-size: 12px; font-weight: 600; color: var(--text-main);">Score Paketá</span>
+                                <span style="color: var(--success); font-weight: 800; font-size: 16px;">850 <span style="font-size:12px; font-weight:400; color:var(--text-sub);">/ 1000</span></span>
+                            </div>
+                            <div style="width: 100%; background: #E2E8F0; height: 6px; border-radius: 10px; overflow: hidden;">
+                                <div style="width: 85%; background: var(--success); height: 100%;"></div>
+                            </div>
+                        </div>
+                        <div class="context-row"><span>Renda Mensal Estimada</span><strong>R$ 4.500,00</strong></div>
+                        <div class="context-row"><span>Margem CLT Comprometida</span><strong style="color: var(--warning);">22% (Limite 30%)</strong></div>
+                        <div class="context-row"><span>Comportamento Pagador</span><strong style="color: var(--primary);">Excelente</strong></div>
+                    </div>
+
+                    <div class="context-group">
+                        <h5>Dados Operacionais</h5>
+                        <div class="context-row"><span>CPF</span><strong>111.222.333-44</strong></div>
+                        <div class="context-row"><span>Telefone</span><strong>(11) 98888-7777</strong></div>
+                        <div class="context-row"><span>Dispositivo Atual</span><strong>iPhone 13 (Safari)</strong></div>
+                    </div>
+
+                    <div class="context-group">
+                        <h5>Log de Navegação (Últimos 5 min)</h5>
+                        <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
+                            <div class="timeline-item"><div class="timeline-time">14:48</div><div class="timeline-desc">Acessou "Educação Financeira"</div></div>
+                            <div class="timeline-item"><div class="timeline-time">14:49</div><div class="timeline-desc">Abriu sanfona: "Como antecipar"</div></div>
+                            <div class="timeline-item" style="margin-bottom: 0;"><div class="timeline-time">14:50</div><div class="timeline-desc" style="color: var(--primary);">Acionou Chatbot na Home</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-area" id="view-clientes">
+            <div class="page-title">
+                Gestão da Carteira de Clientes
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn-action outline"><i data-lucide="download" size="16"></i> Exportar CSV</button>
+                    <button class="btn-action"><i data-lucide="plus" size="16"></i> Novo Contrato Manual</button>
+                </div>
+            </div>
+
+            <div class="card" style="padding: 0; overflow: hidden;">
+                <table class="data-table">
+                    <thead>
+                        <tr><th>Cliente / Contato</th><th>CPF</th><th>Empresa Parceira (RH)</th><th>Score de Crédito</th><th>Status da Conta</th><th>Ações</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Ana Beatriz Lima</strong><br><span style="color: var(--text-sub); font-size: 12px;">(11) 97777-6666</span></td>
+                            <td>444.555.666-77</td>
+                            <td><strong>Magazine Luiza S/A</strong></td>
+                            <td><span style="color: var(--success); font-weight: 700;">920 (A)</span></td>
+                            <td><span class="badge success">Ativa</span></td>
+                            <td>
+                                <button class="btn-action outline" onclick="openDrawer('Ana Beatriz Lima', 'AB')" style="margin-right: 4px;"><i data-lucide="user" size="16"></i> Perfil 360</button>
+                                <button class="btn-action outline" onclick="switchTab('kyc', document.getElementById('nav-kyc'))"><i data-lucide="shield-alert" size="16"></i> Analytics</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Carlos Eduardo Souza</strong><br><span style="color: var(--text-sub); font-size: 12px;">(21) 98888-5555</span></td>
+                            <td>111.999.888-22</td>
+                            <td><strong>Ambev S/A</strong></td>
+                            <td><span style="color: var(--warning); font-weight: 700;">650 (C)</span></td>
+                            <td><span class="badge warning">Em Atraso (12 dias)</span></td>
+                            <td><button class="btn-action outline" style="color: var(--warning);"><i data-lucide="refresh-ccw" size="16"></i> Refinanciar</button></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Fernanda Costa</strong><br><span style="color: var(--text-sub); font-size: 12px;">(31) 96666-4444</span></td>
+                            <td>333.222.111-00</td>
+                            <td><strong>Ifood Brasil</strong></td>
+                            <td><span style="color: var(--danger); font-weight: 700;">400 (E)</span></td>
+                            <td><span class="badge danger">Demissão/Bloqueada</span></td>
+                            <td><button class="btn-action outline" style="color: var(--danger);"><i data-lucide="gavel" size="16"></i> Cobrança</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="content-area" id="view-kyc">
+            <div class="page-title">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <div style="width: 48px; height: 48px; background: var(--primary); color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px;">AB</div>
+                    <div>
+                        <h2 style="font-size: 20px; font-weight: 700; margin: 0;">Ana Beatriz Lima</h2>
+                        <span style="font-size: 13px; color: var(--text-sub);">CPF: 444.555.666-77 • Parceiro: Magazine Luiza S/A</span>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn-action outline" style="color: var(--danger); border-color: var(--danger);"><i data-lucide="slash" size="16"></i> Negar</button>
+                    <button class="btn-action" style="background: var(--success);"><i data-lucide="check" size="16"></i> Aprovação Expressa</button>
+                </div>
+            </div>
+
+            <div class="grid-kyc">
+                <div class="card" style="margin-bottom: 0;">
+                    <h4 style="font-size: 14px; color: var(--text-sub); text-transform: uppercase; margin-bottom: 16px;">Motor de Decisão (Credit Score)</h4>
+                    <div style="display: flex; align-items: center; gap: 24px;">
+                        <div style="text-align: center;">
+                            <div style="position: relative; width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(var(--success) 0% 85%, #E2E8F0 85% 100%); display: flex; align-items: center; justify-content: center;">
+                                <div style="width: 100px; height: 100px; background: white; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                                    <span style="font-size: 28px; font-weight: 800; color: var(--text-main); line-height: 1;">850</span>
+                                    <span style="font-size: 11px; color: var(--text-sub);">SCORE A</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="flex-grow: 1;">
+                            <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed var(--border); padding-bottom: 8px; margin-bottom: 8px;">
+                                <span style="font-size: 13px; color: var(--text-sub);">Probabilidade de Default ($PD$)</span>
+                                <strong style="color: var(--success);">1.2% (Baixo)</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed var(--border); padding-bottom: 8px; margin-bottom: 8px;">
+                                <span style="font-size: 13px; color: var(--text-sub);">Limite de Crédito Sugerido</span>
+                                <strong>R$ 8.500,00</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="font-size: 13px; color: var(--text-sub);">Comprometimento de Renda</span>
+                                <strong style="color: var(--warning);">22% (Teto 30%)</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-bottom: 0;">
+                    <h4 style="font-size: 14px; color: var(--text-sub); text-transform: uppercase; margin-bottom: 16px;">Explainable AI (Sumário de Decisão)</h4>
+                    <div class="explainable-box">
+                        <div class="explainable-item">
+                            <i data-lucide="check-circle-2" class="explainable-icon" size="18"></i>
+                            <div><strong>Histórico Positivo Sólido:</strong> Cliente não apresenta atrasos no Cadastro Positivo nos últimos 24 meses.</div>
+                        </div>
+                        <div class="explainable-item">
+                            <i data-lucide="check-circle-2" class="explainable-icon" size="18"></i>
+                            <div><strong>Estabilidade Empregatícia:</strong> Base da Receita Federal aponta vínculo CLT com a Magazine Luiza há mais de 3 anos.</div>
+                        </div>
+                        <div class="explainable-item">
+                            <i data-lucide="alert-triangle" style="color: var(--warning);" class="explainable-icon" size="18"></i>
+                            <div><strong>Alerta Secundário:</strong> Alta utilização de limite em cartões de crédito externos (85% do limite tomado).</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h4 style="font-size: 15px; font-weight: 700; margin-bottom: 16px;">Matriz de Avaliação (Os 5 C's do Crédito)</h4>
+            <div class="five-c-grid">
+                <div class="five-c-card"><div class="five-c-icon"><i data-lucide="user-check"></i></div><strong style="display: block; font-size: 14px;">Caráter</strong><span style="font-size: 12px; color: var(--text-sub); display: block; margin-bottom: 8px;">Idoneidade / Serasa</span><span class="badge success">Excelente</span></div>
+                <div class="five-c-card"><div class="five-c-icon"><i data-lucide="wallet"></i></div><strong style="display: block; font-size: 14px;">Capacidade</strong><span style="font-size: 12px; color: var(--text-sub); display: block; margin-bottom: 8px;">Fluxo de Caixa</span><span class="badge success">Adequada</span></div>
+                <div class="five-c-card"><div class="five-c-icon"><i data-lucide="landmark"></i></div><strong style="display: block; font-size: 14px;">Capital</strong><span style="font-size: 12px; color: var(--text-sub); display: block; margin-bottom: 8px;">Patrimônio Líquido</span><span class="badge neutral">Desconhecido</span></div>
+                <div class="five-c-card"><div class="five-c-icon"><i data-lucide="car"></i></div><strong style="display: block; font-size: 14px;">Colateral</strong><span style="font-size: 12px; color: var(--text-sub); display: block; margin-bottom: 8px;">Garantia CLT</span><span class="badge success">Seguro (Folha)</span></div>
+                <div class="five-c-card"><div class="five-c-icon"><i data-lucide="bar-chart-3"></i></div><strong style="display: block; font-size: 14px;">Condições</strong><span style="font-size: 12px; color: var(--text-sub); display: block; margin-bottom: 8px;">Cenário Econômico</span><span class="badge warning">Risco Moderado</span></div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+                <div class="card" style="margin-bottom: 0;">
+                    <h4 style="font-size: 14px; color: var(--text-sub); text-transform: uppercase; margin-bottom: 16px;">Ingestão e Validação de Dados (Inputs)</h4>
+                    <div style="display: flex; gap: 24px; margin-bottom: 24px;">
+                        <div style="flex: 1;"><h5 style="font-size: 12px; margin-bottom: 8px;">Fontes Negativas & Bureaus</h5><div class="context-row"><span>Serasa Experian</span><span class="badge outline" style="color: var(--success); border-color: var(--success);"><i data-lucide="check" size="12"></i> Nada Consta</span></div><div class="context-row"><span>Boa Vista (SCPC)</span><span class="badge outline" style="color: var(--success); border-color: var(--success);"><i data-lucide="check" size="12"></i> Nada Consta</span></div></div>
+                        <div style="flex: 1;"><h5 style="font-size: 12px; margin-bottom: 8px;">Validação de Identidade (KYC)</h5><div class="context-row"><span>Receita Federal (CPF)</span><span class="badge outline" style="color: var(--success); border-color: var(--success);"><i data-lucide="check" size="12"></i> Regular</span></div><div class="context-row"><span>Biometria / Selfie</span><span class="badge outline" style="color: var(--success); border-color: var(--success);"><i data-lucide="check" size="12"></i> Match 98%</span></div></div>
+                    </div>
+                    <h4 style="font-size: 14px; color: var(--text-sub); text-transform: uppercase; margin-bottom: 16px;">Monitoramento Pós-Crédito (EWS)</h4>
+                    <div class="ews-alert"><i data-lucide="bell-ring" size="24" color="#EF4444" style="margin-top: 2px;"></i><div><strong style="display: block; color: #991B1B; font-size: 14px; margin-bottom: 4px;">Alerta Early Warning Signal (EWS) Detectado</strong><p style="font-size: 13px; color: #B91C1C; line-height: 1.4; margin: 0;">O sistema identificou 3 consultas recentes ao CPF do cliente no Serasa por outras instituições financeiras nos últimos 5 dias. <strong>Ação Recomendada:</strong> Não aumentar limite de crédito nas próximas 4 semanas.</p></div></div>
+                </div>
+                <div class="card" style="margin-bottom: 0; background: #0F172A; color: white;">
+                    <h4 style="font-size: 14px; color: var(--sidebar-text); text-transform: uppercase; margin-bottom: 16px;">Workflow Operacional</h4>
+                    <div style="background: rgba(255,255,255,0.1); padding: 16px; border-radius: 8px; margin-bottom: 16px;"><span style="display: block; font-size: 12px; color: var(--sidebar-text); margin-bottom: 4px;">Status da Esteira</span><strong style="font-size: 16px; color: var(--success); display: flex; align-items: center; gap: 8px;"><i data-lucide="check-circle-2" size="18"></i> Elegível Automação</strong><p style="font-size: 11px; margin-top: 8px; color: var(--sidebar-text);">O perfil atende aos critérios de aprovação instantânea (Zero Toque).</p></div>
+                    <button class="btn-action" style="width: 100%; justify-content: center; margin-bottom: 12px; background: var(--primary-light);">Ver Documentos (KYC)</button>
+                    <button class="btn-action outline" style="width: 100%; justify-content: center; color: white; border-color: rgba(255,255,255,0.2);">Histórico de Backtesting</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-area" id="view-equipe">
+            <div class="page-title">
+                Desempenho da Equipe (Operações & CX)
+                <button class="btn-action outline"><i data-lucide="calendar" size="16"></i> Últimos 30 Dias</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card"><span>Operadores Online</span><h3 style="color: var(--success);">14 / 15</h3></div>
+                <div class="stat-card"><span>TMA Global (Equipe)</span><h3 style="color: var(--primary);">2m 10s</h3></div>
+                <div class="stat-card"><span>FCR (Resolvido 1º Contato)</span><h3 style="color: var(--success);">88%</h3></div>
+                <div class="stat-card"><span>CSAT Médio (Satisfação)</span>
+                    <h3 style="display: flex; align-items: center; gap: 8px;">4.8 <div class="stars"><i data-lucide="star" fill="#F59E0B" size="20"></i></div></h3>
+                </div>
+            </div>
+
+            <div class="card" style="padding: 0; overflow: hidden;">
+                <table class="data-table">
+                    <thead>
+                        <tr><th>Operador</th><th>Cargo / Célula</th><th>Chamados (Hoje)</th><th>TMA (Tempo Médio)</th><th>Avaliação CSAT (Cliente)</th><th>Ações Internas</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background-color: #F8FAFC;">
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="width: 36px; height: 36px; border-radius: 50%; background: #334155; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px;">RC</div>
+                                    <div><strong>Rafael Costa (Você)</strong><br><span style="color: var(--success); font-size: 11px;">🟢 Online</span></div>
+                                </div>
+                            </td>
+                            <td><span class="badge neutral">CX Sênior</span></td>
+                            <td><strong>42</strong> resolvidos</td>
+                            <td><strong style="color: var(--success);">1m 45s</strong> <span style="font-size: 11px; color: var(--text-sub);">(-15% meta)</span></td>
+                            <td>
+                                <div class="stars"><i data-lucide="star" fill="#F59E0B" size="14"></i><i data-lucide="star" fill="#F59E0B" size="14"></i><i data-lucide="star" fill="#F59E0B" size="14"></i><i data-lucide="star" fill="#F59E0B" size="14"></i><i data-lucide="star" fill="#F59E0B" size="14"></i></div>
+                                <span style="font-size: 12px; margin-left: 8px;">4.9 (12 avaliações)</span>
+                            </td>
+                            <td><button class="btn-action outline"><i data-lucide="trending-up" size="16"></i> Ver Metas</button></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary-light); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px;">AS</div>
+                                    <div><strong>Amanda Silva</strong><br><span style="color: var(--success); font-size: 11px;">🟢 Online</span></div>
+                                </div>
+                            </td>
+                            <td><span class="badge neutral">Mesa de Crédito</span></td>
+                            <td><strong>89</strong> aprovados</td>
+                            <td><strong>2m 30s</strong> <span style="font-size: 11px; color: var(--text-sub);">(na meta)</span></td>
+                            <td>
+                                <div class="stars"><i data-lucide="star" fill="#F59E0B" size="14"></i><i data-lucide="star" fill="#F59E0B" size="14"></i><i data-lucide="star" fill="#F59E0B" size="14"></i><i data-lucide="star" fill="#F59E0B" size="14"></i><i data-lucide="star" size="14"></i></div>
+                                <span style="font-size: 12px; margin-left: 8px;">4.2 (8 avaliações)</span>
+                            </td>
+                            <td><button class="btn-action outline"><i data-lucide="trending-up" size="16"></i> Ver Metas</button></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="width: 36px; height: 36px; border-radius: 50%; background: #94A3B8; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px;">CM</div>
+                                    <div><strong>Carlos Mendes</strong><br><span style="color: var(--warning); font-size: 11px;">🟡 Em Pausa (Almoço)</span></div>
+                                </div>
+                            </td>
+                            <td><span class="badge neutral">CX Júnior</span></td>
+                            <td><strong>15</strong> resolvidos</td>
+                            <td><strong style="color: var(--danger);">4m 10s</strong> <span style="font-size: 11px; color: var(--text-sub);">(+20% meta)</span></td>
+                            <td>
+                                <div class="stars"><i data-lucide="star" fill="#F59E0B" size="14"></i><i data-lucide="star" fill="#F59E0B" size="14"></i><i data-lucide="star" fill="#F59E0B" size="14"></i><i data-lucide="star" size="14"></i><i data-lucide="star" size="14"></i></div>
+                                <span style="font-size: 12px; margin-left: 8px;">3.1 (5 avaliações)</span>
+                            </td>
+                            <td><button class="btn-action outline" style="color: var(--danger); border-color: var(--danger);"><i data-lucide="message-square-warning" size="16"></i> Dar Feedback</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="content-area" id="view-relatorios">
+            <div class="page-title">
+                Dashboard Gerencial Financeiro
+                <button class="btn-action outline"><i data-lucide="calendar" size="16"></i> Este Mês</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white;">
+                    <span style="color: rgba(255,255,255,0.8);">Volume Concedido</span><h3 style="color: white;">R$ 2.45M</h3>
+                </div>
+                <div class="stat-card"><span>Receita de Juros (NIM)</span><h3 style="color: var(--success);">R$ 450.2k</h3></div>
+                <div class="stat-card"><span>Inadimplência (NPL > 90)</span><h3 style="color: var(--warning);">2.1%</h3></div>
+                <div class="stat-card"><span>Ticket Médio</span><h3>R$ 3.250</h3></div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+                <div class="card">
+                    <h4 style="margin-bottom: 24px; font-size: 16px;">Evolução de Concessão de Crédito</h4>
+                    <div class="chart-area">
+                        <div class="bar-col"><div class="bar light" style="height: 40%;"></div><span class="bar-label">Out</span></div>
+                        <div class="bar-col"><div class="bar light" style="height: 55%;"></div><span class="bar-label">Nov</span></div>
+                        <div class="bar-col"><div class="bar light" style="height: 45%;"></div><span class="bar-label">Dez</span></div>
+                        <div class="bar-col"><div class="bar light" style="height: 70%;"></div><span class="bar-label">Jan</span></div>
+                        <div class="bar-col"><div class="bar" style="height: 90%;"></div><span class="bar-label">Fev</span></div>
+                        <div class="bar-col"><div class="bar success" style="height: 100%;"></div><span class="bar-label">Mar</span></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h4 style="margin-bottom: 24px; font-size: 16px;">Composição de Risco da Carteira</h4>
+                    
+                    <div style="display: flex; justify-content: space-between; font-size: 13px;"><span>Score A (Baixo Risco)</span><strong>65%</strong></div>
+                    <div class="progress-track"><div class="progress-fill" style="width: 65%; background: var(--success);"></div></div>
+
+                    <div style="display: flex; justify-content: space-between; font-size: 13px;"><span>Score B e C (Médio)</span><strong>25%</strong></div>
+                    <div class="progress-track"><div class="progress-fill" style="width: 25%; background: var(--warning);"></div></div>
+
+                    <div style="display: flex; justify-content: space-between; font-size: 13px;"><span>Score D e E (Alto Risco)</span><strong>10%</strong></div>
+                    <div class="progress-track"><div class="progress-fill" style="width: 10%; background: var(--danger);"></div></div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+    <div class="drawer" id="perfilDrawer">
+        <div class="drawer-header">
+            <div>
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                    <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--primary-light); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px;" id="drawerInitials">AB</div>
+                    <div>
+                        <h2 style="font-size: 20px; font-weight: 700; margin: 0;" id="drawerName">Ana Beatriz Lima</h2>
+                        <span class="badge success" style="margin-top: 4px;">Conta Ativa e Verificada</span>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-action outline" style="padding: 6px;" onclick="closeDrawer()"><i data-lucide="x" size="20"></i></button>
+        </div>
+        <div class="drawer-body">
+            <h4 style="font-size: 14px; margin-bottom: 16px; color: var(--text-sub); text-transform: uppercase;">Dossiê de Verificação (KYC)</h4>
+            
+            <div class="doc-box">
+                <i data-lucide="image" size="24" color="var(--primary)"></i>
+                <div style="flex-grow: 1;">
+                    <strong style="display: block; font-size: 14px;">Selfie_Cadastro.jpg</strong>
+                    <span style="font-size: 12px; color: var(--success);">Match Facial: 98% de similaridade</span>
+                </div>
+                <button class="btn-action outline" style="padding: 4px 8px;"><i data-lucide="eye" size="14"></i></button>
+            </div>
+
+            <div class="doc-box">
+                <i data-lucide="file-badge-2" size="24" color="var(--primary)"></i>
+                <div style="flex-grow: 1;">
+                    <strong style="display: block; font-size: 14px;">CNH_Frente_Verso.pdf</strong>
+                    <span style="font-size: 12px; color: var(--success);">Documento Original Valido</span>
+                </div>
+                <button class="btn-action outline" style="padding: 4px 8px;"><i data-lucide="eye" size="14"></i></button>
+            </div>
+
+            <h4 style="font-size: 14px; margin-bottom: 16px; margin-top: 32px; color: var(--text-sub); text-transform: uppercase;">Anotações da Equipe</h4>
+            <textarea placeholder="Adicionar nota restrita ao Backoffice..." style="width: 100%; height: 80px; padding: 12px; border-radius: 8px; border: 1px solid var(--border); outline: none; font-size: 13px; resize: none;"></textarea>
+            <button class="btn-action" style="width: 100%; justify-content: center; margin-top: 8px;">Salvar Nota</button>
+
+            <div class="internal-note">
+                <strong>Amanda Silva (Operações) - 05/03/2026</strong><br>
+                Cliente ligou perguntando sobre limite. Confirmei os dados do RH da Magazine Luiza. Tudo certo com a margem.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        function switchTab(viewId, element) {
+            document.querySelectorAll('.content-area').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('view-' + viewId).classList.add('active');
+            if(element) element.classList.add('active');
+        }
+
+        function openDrawer(nome, iniciais) {
+            document.getElementById('drawerName').innerText = nome;
+            document.getElementById('drawerInitials').innerText = iniciais;
+            document.getElementById('drawerOverlay').style.display = 'block';
+            document.getElementById('drawerOverlay').classList.add('show');
+            document.getElementById('perfilDrawer').classList.add('open');
+            lucide.createIcons();
+        }
+
+        function closeDrawer() {
+            document.getElementById('perfilDrawer').classList.remove('open');
+            document.getElementById('drawerOverlay').classList.remove('show');
+            setTimeout(() => { document.getElementById('drawerOverlay').style.display = 'none'; }, 300);
+        }
+
+        function aprovarEmprestimo(btnElement, statusId) {
+            btnElement.innerHTML = `<i data-lucide="loader-2" class="spin" size="16"></i> Processando PIX...`;
+            lucide.createIcons();
+            setTimeout(() => {
+                btnElement.className = 'btn-action outline';
+                btnElement.innerHTML = `<i data-lucide="eye" size="16"></i> Ver Comprovante`;
+                btnElement.disabled = true;
+                const status = document.getElementById(statusId);
+                if (status) { status.className = 'badge success'; status.innerHTML = `<i data-lucide="check-circle" size="12"></i> Liquidado`; }
+                const fila = document.getElementById('stat-fila');
+                let count = parseInt(fila.innerText);
+                if (count > 0) fila.innerText = count - 1;
+                lucide.createIcons();
+                alert("Aprovação Concluída! O PIX foi disparado para a conta do cliente.");
+            }, 1500);
+        }
+
+        function aprovarManual(btnElement, statusId) {
+            let motivo = prompt("Análise Manual de Crédito de Alto Valor: Digite sua justificativa para aprovar (Ex: Conferi margem do RH):");
+            if(motivo) { aprovarEmprestimo(btnElement, statusId); }
+        }
+
+        function handleEnter(e) { if (e.key === 'Enter') enviarMensagemAdmin(); }
+
+        function enviarMensagemAdmin() {
+            const input = document.getElementById('adminChatInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            const chatBody = document.getElementById('adminChatBody');
+            chatBody.innerHTML += `<div class="msg admin">${msg}</div>`;
+            input.value = '';
+            chatBody.scrollTop = chatBody.scrollHeight;
+
+            localStorage.setItem('pkt_sync_admin', JSON.stringify({ tipo: 'CHAT_ADMIN_MSG', dados: { msg: msg }, time: Date.now() }));
+        }
+
+        function enviarAnexoAdmin() {
+            const chatBody = document.getElementById('adminChatBody');
+            chatBody.innerHTML += `
+                <div class="msg admin" style="display: flex; align-items: center; gap: 8px; background: #0F172A;">
+                    <i data-lucide="file-text" size="20"></i>
+                    <div>
+                        <strong style="display:block; font-size: 13px;">Contrato_Assinado.pdf</strong>
+                        <span style="font-size: 11px; opacity: 0.8;">Enviado para o cliente</span>
+                    </div>
+                </div>`;
+            chatBody.scrollTop = chatBody.scrollHeight;
+            lucide.createIcons();
+
+            localStorage.setItem('pkt_sync_admin', JSON.stringify({
+                tipo: 'CHAT_ADMIN_FILE',
+                dados: { fileName: 'Copia_Contrato_Paketa.pdf' },
+                time: Date.now()
+            }));
+        }
+
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'pkt_sync') {
+                const pacote = JSON.parse(e.newValue);
+                
+                if (pacote.tipo === 'NOVO_CONTRATO') {
+                    const tableBody = document.getElementById('tabela-esteira');
+                    const idContrato = Math.floor(1000 + Math.random() * 9000);
+                    const hoje = new Date().toLocaleString('pt-BR').substring(0, 16);
+                    const fila = document.getElementById('stat-fila');
+                    fila.innerText = parseInt(fila.innerText) + 1;
+
+                    const novaLinha = document.createElement('tr');
+                    novaLinha.style.animation = "fadeIn 0.5s ease";
+                    novaLinha.style.backgroundColor = "#FEF3C7"; 
+                    setTimeout(() => novaLinha.style.backgroundColor = "transparent", 2000);
+
+                    let statusMotor = '<span class="badge success"><i data-lucide="check-circle" size="12"></i> Score A</span>';
+                    let botaoAcao = `<button class="btn-action" onclick="aprovarEmprestimo(this, 'status-${idContrato}')"><i data-lucide="check" size="16"></i> Liquidar PIX</button>`;
+                    
+                    if(pacote.dados.valor > 3000) {
+                        statusMotor = '<span class="badge warning"><i data-lucide="alert-circle" size="12"></i> Risco Moderado</span>';
+                        botaoAcao = `<button class="btn-action outline" style="color: #B45309; border-color: #B45309;" onclick="aprovarManual(this, 'status-${idContrato}')"><i data-lucide="user-check" size="16"></i> Análise Manual</button>`;
+                    }
+
+                    novaLinha.innerHTML = `
+                        <td><strong style="color: var(--primary);">#PKT-${idContrato}</strong><br><span style="color: var(--text-sub); font-size: 11px;">${hoje}</span></td>
+                        <td><strong>${pacote.dados.nome}</strong><br><span style="color: var(--text-sub); font-size: 12px;">CPF: ${pacote.dados.cpf}</span></td>
+                        <td><strong>R$ ${pacote.dados.valor.toFixed(2)}</strong><br><span style="color: var(--text-sub); font-size: 12px;">${pacote.dados.parcelas}x</span></td>
+                        <td>${statusMotor}</td>
+                        <td><span class="badge warning" id="status-${idContrato}"><i data-lucide="clock" size="12"></i> Aguardando KYC</span></td>
+                        <td>${botaoAcao}</td>
+                    `;
+                    tableBody.insertBefore(novaLinha, tableBody.firstChild);
+                    lucide.createIcons();
+                }
+
+                if (pacote.tipo === 'CHAT_HUMANO' || pacote.tipo === 'CHAT_USER_MSG') {
+                    const chatBody = document.getElementById('adminChatBody');
+                    let msgHtml = pacote.tipo === 'CHAT_HUMANO' 
+                        ? `<div class="msg user" style="border: 2px solid var(--warning); animation: pulse 1s infinite alternate;">🚨 Cliente solicitou ajuda humana!</div>`
+                        : `<div class="msg user">${pacote.dados.msg}</div>`;
+                    
+                    chatBody.innerHTML += msgHtml;
+                    chatBody.scrollTop = chatBody.scrollHeight;
+                    switchTab('cx', document.querySelectorAll('.nav-item')[1]);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
