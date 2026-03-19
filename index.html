@@ -8,7 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* ================= CSS DA LANDING PAGE EMBUTIDO ================= */
         :root {
             --primary: #0070E0;
             --primary-dark: #0056b3;
@@ -31,10 +30,8 @@
         .btn-outline:hover { background: var(--bg-main); }
         .btn-white { background: white; color: var(--primary); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
 
-        /* Navbar e Menu Hamburger */
         #navbar { position: fixed; top: 0; left: 0; width: 100%; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); display: flex; justify-content: space-between; align-items: center; padding: 16px 5%; border-bottom: 1px solid var(--border); z-index: 1000; }
-        .logo-container { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 20px; color: var(--primary); z-index: 1001; }
-        .logo-icon { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+        .logo-container { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 20px; color: var(--primary); z-index: 1001; cursor: pointer; }
         
         .menu-toggle { display: none; cursor: pointer; color: var(--primary); z-index: 1001; padding: 4px; }
         .nav-menu { display: flex; align-items: center; gap: 32px; flex-grow: 1; justify-content: flex-end; }
@@ -107,7 +104,7 @@
 
         footer { background: #0F172A; color: white; padding: 80px 5% 40px 5%; }
         .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px; max-width: 1200px; margin: 0 auto 60px auto; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 60px; }
-        .footer-brand { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 24px; margin-bottom: 24px; }
+        .footer-brand { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
         .footer-col h4 { font-size: 16px; margin-bottom: 24px; color: white; }
         .footer-col ul { list-style: none; }
         .footer-col ul li { margin-bottom: 16px; }
@@ -117,7 +114,6 @@
         .social-link:hover { background: var(--primary); }
         .footer-bottom { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; color: #94A3B8; font-size: 14px; }
 
-        /* Media Queries - Responsividade */
         @media (max-width: 992px) {
             .hero-container { flex-direction: column; text-align: center; }
             .hero-content h1 { font-size: 2.8rem; }
@@ -127,26 +123,14 @@
             .features-grid { grid-template-columns: repeat(2, 1fr); }
             .footer-grid { grid-template-columns: repeat(2, 1fr); }
             
-            /* Ajustes do Menu Hamburger */
             .menu-toggle { display: block; }
             .nav-menu {
-                position: absolute;
-                top: 100%;
-                left: 0;
-                width: 100%;
-                background: rgba(255, 255, 255, 0.98);
-                backdrop-filter: blur(10px);
-                flex-direction: column;
-                padding: 32px 20px;
-                box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-                display: none; /* Escondido por padrão */
-                gap: 24px;
-                border-bottom: 1px solid var(--border);
+                position: absolute; top: 100%; left: 0; width: 100%;
+                background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px);
+                flex-direction: column; padding: 32px 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+                display: none; gap: 24px; border-bottom: 1px solid var(--border);
             }
-            .nav-menu.active {
-                display: flex;
-                animation: slideDown 0.3s ease forwards;
-            }
+            .nav-menu.active { display: flex; animation: slideDown 0.3s ease forwards; }
             .nav-links { flex-direction: column; align-items: center; width: 100%; margin-right: 0; gap: 24px; }
             .nav-link { font-size: 18px; }
             .nav-buttons { flex-direction: column; width: 100%; gap: 16px; }
@@ -180,18 +164,14 @@
         .animate-up { opacity: 0; transform: translateY(20px); animation: fadeInUp 0.6s ease forwards; }
         .delay-1 { animation-delay: 0.2s; }
         .delay-2 { animation-delay: 0.4s; }
-        
         @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
     <nav id="navbar">
-        <div class="logo-container">
-            <div class="logo-icon">
-                <i data-lucide="landmark" size="24" color="currentColor"></i>
-            </div>
-            Paketá
+        <div class="logo-container" onclick="window.scrollTo(0,0)">
+            <img src="./logo.png" alt="Paketá" style="height: 32px; width: auto; object-fit: contain;">
         </div>
 
         <div class="menu-toggle" id="mobile-menu-btn">
@@ -205,7 +185,6 @@
                 <a href="#" class="nav-link" onclick="closeMobileMenu()">Transparência</a>
                 <a href="#" class="nav-link" onclick="closeMobileMenu()">Ajuda</a>
             </div>
-
             <div class="nav-buttons">
                 <a href="./app.html?flow=login" class="btn btn-outline" style="border: none;">Entrar</a>
                 <a href="./app.html?flow=novo" class="btn btn-primary">Faça uma simulação</a>
@@ -379,10 +358,7 @@
         <div class="footer-grid">
             <div class="footer-col">
                 <div class="footer-brand">
-                    <div class="logo-icon" style="width: 36px; height: 36px; border-radius: 10px;">
-                        <i data-lucide="landmark" size="20" color="currentColor"></i>
-                    </div>
-                    Paketá
+                    <img src="./logo.png" alt="Paketá" style="height: 28px; width: auto; object-fit: contain; filter: brightness(0) invert(1);">
                 </div>
                 <p style="margin-bottom: 32px; max-width: 300px; line-height: 1.6;">O crédito ideal sob medida para os seus maiores sonhos. Simples, justíssimo e de ponta a ponta digital.</p>
                 <div>
@@ -430,22 +406,18 @@
     </footer>
 
     <script>
-        /* ================= JAVASCRIPT DA LANDING PAGE EMBUTIDO ================= */
         lucide.createIcons();
 
-        // Lógica do Menu Hamburger (Mobile)
         const mobileBtn = document.getElementById('mobile-menu-btn');
         const navMenu = document.getElementById('nav-menu');
 
         mobileBtn.addEventListener('click', () => {
             navMenu.classList.toggle('active');
             const isOpen = navMenu.classList.contains('active');
-            // Troca o ícone de hamburger para 'X' quando aberto
             mobileBtn.innerHTML = isOpen ? `<i data-lucide="x" size="28"></i>` : `<i data-lucide="menu" size="28"></i>`;
             lucide.createIcons();
         });
 
-        // Função para fechar o menu ao clicar num link
         function closeMobileMenu() {
             if (window.innerWidth <= 992) {
                 navMenu.classList.remove('active');
@@ -481,21 +453,15 @@
         function updateSimulation() {
             const amountInput = document.getElementById('rangeAmount');
             const monthsInput = document.getElementById('rangeMonths');
-            
             if(!amountInput || !monthsInput) return;
-
             const amount = parseInt(amountInput.value);
             const months = parseInt(monthsInput.value);
-
             document.getElementById('valAmount').innerText = amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             document.getElementById('valMonths').innerText = months + 'x';
-
             const rate = 0.0199;
             const installment = (amount * rate) / (1 - Math.pow(1 + rate, -months));
-
             document.getElementById('valInstallment').innerText = installment.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
-
         updateSimulation();
     </script>
 </body>
