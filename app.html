@@ -228,8 +228,8 @@
 
     <div anty-view="loading" style="justify-content: center; align-items: center; text-align: center; padding: 24px;">
         <div class="spinner"></div>
-        <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 12px;">Analisando seu perfil...</h2>
-        <p style="color: var(--text-sub); font-size: 16px; line-height: 1.5;">Buscando as melhores taxas do mercado baseadas no seu histórico CLT.</p>
+        <h2 id="loadingTitle" style="font-size: 24px; font-weight: 800; margin-bottom: 12px;">Analisando seu perfil...</h2>
+        <p id="loadingDesc" style="color: var(--text-sub); font-size: 16px; line-height: 1.5;">Buscando as melhores taxas do mercado baseadas no seu histórico CLT.</p>
     </div>
 
     <div anty-view="negado" style="justify-content: center; align-items: center; text-align: center; padding: 20px;">
@@ -255,6 +255,16 @@
                 <button class="btn btn-primary" style="margin-top: 8px;" onclick="app.finalizarCadastro()">Continuar</button>
             </div>
         </div>
+    </div>
+
+    <div anty-view="documento" style="justify-content: center; align-items: center; text-align: center; padding: 24px;">
+        <div style="width: 88px; height: 88px; background: white; border-radius: 28px; box-shadow: var(--shadow-md); display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+            <i data-lucide="file-text" color="var(--primary)" size="48"></i>
+        </div>
+        <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 12px; color: #0F172A;">Validação de identidade</h2>
+        <p style="color: var(--text-sub); font-size: 16px; margin-bottom: 32px; line-height: 1.5;">Precisamos de uma foto do seu RG ou CNH para garantir a segurança da sua conta.</p>
+        <button class="btn btn-primary" style="margin-bottom: 16px;" onclick="app.simularDocumento()">Tirar foto do documento</button>
+        <button class="btn btn-outline" style="border: none;" onclick="anty.goto('splash')">Cancelar</button>
     </div>
 
     <div anty-view="gov-br" style="justify-content: center; align-items: center; padding: 24px; text-align: center;">
@@ -467,7 +477,7 @@
 
     <div anty-view="liveness" style="justify-content: center; align-items: center; text-align: center; padding: 24px; background: #0F172A; color: white;">
         <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 8px;">Verificação de Identidade</h2>
-        <p style="color: #94A3B8; font-size: 15px; margin-bottom: 48px;">Para sua segurança, precisamos de uma selfie antes de liberar o contrato.</p>
+        <p style="color: #94A3B8; font-size: 15px; margin-bottom: 48px;">Para sua segurança, precisamos de uma selfie antes de continuar.</p>
         
         <div id="livenessIcon" style="margin-bottom: 32px; display: flex; justify-content: center;"></div>
         
@@ -571,7 +581,8 @@
             pendingSimAmount: 0,
             pendingSimMonthly: 0,
             pendingSimMonths: 12,
-            pendingContractType: ''
+            pendingContractType: '',
+            livenessNextStep: 'contract' // Controle de fluxo do liveness
         };
 
         const app = {
@@ -579,8 +590,65 @@
             voltarCpf() { if (appState.flow === 'primeiro-acesso') anty.goto('primeiro-acesso-cpf'); else anty.goto('novo-cpf'); },
             enviarCpf(tipo) { const inputId = tipo === 'novo' ? 'inputCpfNovo' : 'inputCpfPrimeiro'; const el = document.getElementById(inputId); appState.currentCpf = el ? el.value : ''; anty.goto('sms'); },
             entrarLogin() { const btn = document.getElementById('btnLogin'); if(btn) btn.innerHTML = `<i data-lucide="loader-2" class="spin"></i>`; lucide.createIcons(); setTimeout(() => { if(btn) btn.innerHTML = 'Entrar de forma segura'; this.entrarDashboard(); }, 1000); },
-            validarSms() { const btn = document.getElementById('btnSms'); if(btn) btn.innerHTML = `<i data-lucide="loader-2" class="spin"></i>`; lucide.createIcons(); setTimeout(() => { if(btn) btn.innerHTML = 'Validar Código'; if(appState.flow === 'primeiro-acesso') { anty.goto('criar-senha'); } else if (appState.flow === 'novo') { anty.goto('loading'); setTimeout(() => { if(appState.currentCpf.startsWith('00')) { anty.goto('negado'); } else { anty.goto('aprovado-cadastro'); } }, 2000); } }, 1000); },
-            finalizarCadastro() { const el = document.getElementById('cadNome'); appState.user.name = el ? (el.value.split(' ')[0] || 'Novo Cliente') : 'Cliente'; anty.goto('gov-br'); },
+            
+            validarSms() { 
+                const btn = document.getElementById('btnSms'); 
+                if(btn) btn.innerHTML = `<i data-lucide="loader-2" class="spin"></i>`; 
+                lucide.createIcons(); 
+                
+                setTimeout(() => { 
+                    if(btn) btn.innerHTML = 'Validar Código'; 
+                    if(appState.flow === 'primeiro-acesso') { 
+                        anty.goto('criar-senha'); 
+                    } else if (appState.flow === 'novo') { 
+                        // Reseta o texto da tela de loading para o padrão de análise
+                        const loadTitle = document.getElementById('loadingTitle');
+                        const loadDesc = document.getElementById('loadingDesc');
+                        if (loadTitle) loadTitle.innerText = "Analisando seu perfil...";
+                        if (loadDesc) loadDesc.innerText = "Buscando as melhores taxas do mercado baseadas no seu histórico CLT.";
+                        
+                        anty.goto('loading'); 
+                        setTimeout(() => { 
+                            if(appState.currentCpf.startsWith('00')) { 
+                                anty.goto('negado'); 
+                            } else { 
+                                anty.goto('aprovado-cadastro'); 
+                            } 
+                        }, 2000); 
+                    } 
+                }, 1000); 
+            },
+            
+            finalizarCadastro() { 
+                const el = document.getElementById('cadNome'); 
+                appState.user.name = el ? (el.value.split(' ')[0] || 'Novo Cliente') : 'Cliente'; 
+                anty.goto('documento'); // Redirecionado para Documento ao invés do gov.br
+            },
+            
+            // Nova função de simulação de documento (KYC)
+            simularDocumento() {
+                const loadTitle = document.getElementById('loadingTitle');
+                const loadDesc = document.getElementById('loadingDesc');
+                
+                if (loadTitle) loadTitle.innerText = "Validando documento...";
+                if (loadDesc) loadDesc.innerText = "Lendo dados com segurança...";
+                
+                anty.goto('loading');
+
+                setTimeout(() => {
+                    const isSuccess = Math.random() < 0.8; // 80% de chance de sucesso
+                    
+                    if (isSuccess) {
+                        appState.livenessNextStep = 'gov-br'; // Após Liveness do KYC, vai pro gov.br
+                        anty.goto('liveness');
+                        this.runLivenessProcess();
+                    } else {
+                        alert("Não conseguimos ler seu documento. Tente novamente.");
+                        anty.goto('documento');
+                    }
+                }, 1500);
+            },
+
             autorizarGov() { const btn = document.getElementById('btnGov'); if(btn) btn.innerHTML = `<i data-lucide="loader-2" class="spin"></i>`; lucide.createIcons(); setTimeout(() => { anty.goto('new'); }, 1500); },
             
             entrarDashboard() { 
@@ -866,6 +934,7 @@
             },
 
             contractLoan() {
+                appState.livenessNextStep = 'contract'; // Após liveness finaliza contrato
                 anty.goto('liveness');
                 this.runLivenessProcess();
             },
@@ -912,7 +981,13 @@
                     if(textContainer) textContainer.innerText = "Identidade confirmada com sucesso!";
                     lucide.createIcons();
                     
-                    setTimeout(() => { this.finalizeContractCreation(); }, 1500);
+                    setTimeout(() => { 
+                        if (appState.livenessNextStep === 'gov-br') {
+                            anty.goto('gov-br');
+                        } else {
+                            this.finalizeContractCreation(); 
+                        }
+                    }, 1500);
                     
                 }, 3000);
             },
