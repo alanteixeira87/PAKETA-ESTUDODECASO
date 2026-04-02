@@ -1,3 +1,5 @@
+
+OBS: link util - plataforma crm visual - https://alanteixeira87.github.io/Estudodecasopaketacrm/
 # 📱 Paketá App — Guia de Teste de Jornadas
 
 Este documento tem como objetivo orientar testes completos das jornadas do usuário dentro do protótipo do Paketá App.
