@@ -1,5 +1,6 @@
 
 OBS: link util - plataforma crm visual - https://alanteixeira87.github.io/Estudodecasopaketacrm/
+                 figma - https://www.figma.com/design/7ND09ApccGQHZIOsbIX9FD/Paqueta-Studo-de-caso?node-id=0-1&p=f&t=qhkJmbLEZax0N7za-0
 # 📱 Paketá App — Guia de Teste de Jornadas
 
 Este documento tem como objetivo orientar testes completos das jornadas do usuário dentro do protótipo do Paketá App.
